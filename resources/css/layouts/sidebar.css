@@ -1,0 +1,367 @@
+/* =====================================================
+   SIDEBAR
+===================================================== */
+
+.sidebar{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100vh;
+
+    background: #1f2937;
+
+    display: flex;
+    flex-direction: column;
+
+    overflow: hidden;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.sidebar-header{
+
+    padding: 18px;
+
+    text-align: center;
+
+    border-bottom: 1px solid rgba(255,255,255,.08);
+
+}
+
+.logo-group{
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    margin-bottom: 15px;
+
+}
+
+.sidebar-logo{
+
+    width: 55px;
+    height: 55px;
+
+    object-fit: contain;
+
+}
+
+.sidebar-header h5{
+
+    color:#fff;
+
+    margin-bottom:0;
+
+}
+
+.sidebar-header h6{
+
+    color:#d1d5db;
+
+    margin-bottom:10px;
+
+}
+
+.sidebar-header small{
+
+    color:#9ca3af;
+
+}
+
+/* =====================================================
+   MENU
+===================================================== */
+
+.sidebar-menu{
+
+    flex:1;
+
+    overflow-y:auto;
+
+    overflow-x:hidden;
+
+    scrollbar-width:none;
+
+    padding:12px;
+
+}
+
+.sidebar-menu::-webkit-scrollbar{
+
+    width:0;
+
+}
+
+.sidebar-menu a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:12px 15px;
+
+    margin-bottom:4px;
+
+    border-radius:12px;
+
+    text-decoration:none;
+
+    color:#d1d5db;
+
+    transition:.25s;
+
+}
+
+.sidebar-menu a:hover{
+
+    background:#2563eb;
+
+    color:#fff;
+
+}
+
+.sidebar-menu a.active{
+
+    background:#2563eb;
+
+    color:#fff;
+
+}
+
+.sidebar-menu a i{
+
+    font-size:18px;
+
+    width:22px;
+
+    text-align:center;
+
+}
+
+/* =====================================================
+   SECTION TITLE
+===================================================== */
+
+.sidebar-title{
+
+    margin-top:18px;
+
+    margin-bottom:8px;
+
+    padding:0 15px;
+
+    color:#94a3b8;
+
+    font-size:.70rem;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:1px;
+
+}
+
+/* =====================================================
+   COLLAPSIBLE GROUP
+===================================================== */
+
+.menu-group{
+
+    margin-bottom:8px;
+
+}
+
+.menu-toggle{
+
+    width:100%;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:12px 15px;
+
+    background:transparent;
+
+    border:none;
+
+    color:#d1d5db;
+
+    cursor:pointer;
+
+    border-radius:12px;
+
+    transition:.25s;
+
+}
+
+.menu-toggle:hover{
+
+    background:#2563eb;
+
+    color:#fff;
+
+}
+
+.menu-toggle div{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+}
+
+.menu-toggle i{
+
+    font-size:18px;
+
+}
+
+/* =====================================================
+   ARROW
+===================================================== */
+
+.arrow{
+
+    transition:.30s ease;
+
+}
+
+.menu-group.open .arrow{
+
+    transform:rotate(180deg);
+
+}
+
+/* =====================================================
+   SUBMENU
+===================================================== */
+
+.submenu-group{
+
+    max-height:0;
+
+    overflow:hidden;
+
+    transition:max-height .35s ease;
+
+    margin-left:18px;
+
+}
+
+.menu-group.open .submenu-group{
+
+    max-height:500px;
+
+}
+
+.submenu-group a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:10px 15px;
+
+    margin:3px 0;
+
+    color:#cbd5e1;
+
+    text-decoration:none;
+
+    border-radius:10px;
+
+    transition:.25s;
+
+}
+
+.submenu-group a:hover{
+
+    background:#374151;
+
+    color:#fff;
+
+}
+
+.submenu-group a.active{
+
+    background:#2563eb;
+
+    color:#fff;
+
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.sidebar-footer{
+
+    margin-top:auto;
+
+    padding:18px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    border-top:1px solid rgba(255,255,255,.08);
+
+    background:#1f2937;
+
+}
+
+.avatar{
+
+    width:45px;
+
+    height:45px;
+
+    border-radius:50%;
+
+    background:#2563eb;
+
+    color:#fff;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:700;
+
+    flex-shrink:0;
+
+}
+
+.sidebar-footer strong{
+
+    display:block;
+
+    color:#fff;
+
+}
+
+.sidebar-footer small{
+
+    color:#9ca3af;
+
+}

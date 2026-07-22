@@ -1,0 +1,217 @@
+/* Wizard Progress */
+
+.wizard-progress{
+    margin-bottom:40px;
+}
+
+.wizard-steps{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+}
+
+.wizard-step{
+    flex:1;
+    text-align:center;
+}
+
+.wizard-step .circle{
+    width:55px;
+    height:55px;
+
+    margin:0 auto 10px;
+
+    border-radius:50%;
+
+    background:#e5e7eb;
+    color:#6b7280;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:700;
+    font-size:18px;
+
+    border:3px solid #d1d5db;
+
+    transition:.3s;
+}
+
+.wizard-step small{
+    display:block;
+    color:#6b7280;
+    font-weight:600;
+}
+
+.wizard-step.active .circle{
+    background:#2563eb;
+    border-color:#2563eb;
+    color:#fff;
+
+    box-shadow:0 0 0 6px rgba(37,99,235,.15);
+}
+
+.wizard-step.active small{
+    color:#2563eb;
+}
+
+.wizard-step.completed .circle{
+    background:#22c55e;
+    border-color:#22c55e;
+    color:#fff;
+}
+
+.wizard-step.completed small{
+    color:#22c55e;
+}
+
+/* Wizard Pages */
+
+.wizard-page{
+    display:none;
+}
+
+.wizard-page.active{
+    display:block;
+}
+
+/* Service Cards */
+
+.service-card{
+    display:block;
+    cursor:pointer;
+}
+
+.service-card input{
+    display:none;
+}
+
+.service-content{
+    border:2px solid #e5e7eb;
+    border-radius:16px;
+    padding:25px;
+    text-align:center;
+    transition:.25s;
+    background:#fff;
+    height:100%;
+}
+
+.service-card:hover .service-content{
+    border-color:#2563eb;
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.service-card input:checked + .service-content{
+    border-color:#2563eb;
+    background:#eff6ff;
+}
+/* ---------- SERVICE CARD ---------- */
+
+.service-card{
+    display:block;
+    cursor:pointer;
+}
+
+.service-card input{
+    display:none;
+}
+
+.service-content{
+
+    position:relative;
+
+    border:2px solid #e5e7eb;
+
+    border-radius:16px;
+
+    padding:30px;
+
+    text-align:center;
+
+    transition:.25s;
+
+    background:#fff;
+
+    height:100%;
+
+}
+
+.service-content:hover{
+
+    border-color:#2563eb;
+
+    transform:translateY(-5px);
+
+    box-shadow:0 12px 30px rgba(0,0,0,.08);
+
+}
+
+.service-icon{
+
+    font-size:48px;
+
+    color:#2563eb;
+
+}
+
+.service-check{
+
+    position:absolute;
+
+    top:15px;
+
+    right:15px;
+
+    width:32px;
+
+    height:32px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+
+    color:#fff;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    opacity:0;
+
+    transform:scale(.5);
+
+    transition:.25s;
+
+}
+
+.service-card input:checked + .service-content{
+
+    border-color:#2563eb;
+
+    background:#eff6ff;
+
+}
+
+.service-card input:checked + .service-content .service-check{
+
+    opacity:1;
+
+    transform:scale(1);
+
+}
+#selectedServices .badge{
+
+    display:block;
+
+    margin-bottom:10px;
+
+    font-size:.9rem;
+
+    padding:10px;
+
+}

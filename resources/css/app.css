@@ -1,0 +1,59 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* Base */
+
+@import "./base/variables.css";
+@import "./base/typography.css";
+@import "./base/layout.css";
+
+/* Layouts */
+
+@import "./layouts/sidebar.css";
+@import "./layouts/navbar.css";
+@import "./layouts/dashboard.css";
+@import "./layouts/wizard.css";
+
+/* Components */
+
+@import "./components/admin-cards.css";
+@import "./components/admin-tables.css";
+@import "./components/admin-form.css";
+@import "./components/buttons.css";
+@import "./components/breadcrumb.css";
+/* ---------------------------- */
+
+body{
+    margin:0;
+    padding:0;
+    background:#f3f6fb;
+    font-family:system-ui,-apple-system,sans-serif;
+}
+
+/* ---------------------------- */
+
+.main-content{
+
+    margin-left:260px;
+
+    min-height:100vh;
+
+    transition:.3s;
+
+}
+
+/* ---------------------------- */
+
+.content-area{
+
+    padding:30px;
+
+}
+
+/* ---------------------------- */
+
+.sidebar.collapsed + .main-content{
+
+    margin-left:90px;
+
+}
