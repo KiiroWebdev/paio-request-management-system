@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
 {
+    /**
+     * Mass assignable attributes.
+     */
     protected $fillable = [
-
         'name',
         'slug',
         'description',
@@ -25,11 +29,12 @@ class Service extends Model
         'requires_approval',
 
         'is_active',
-
     ];
 
+    /**
+     * Attribute casting.
+     */
     protected $casts = [
-
         'is_active' => 'boolean',
 
         'requires_request' => 'boolean',
@@ -39,10 +44,12 @@ class Service extends Model
         'requires_attachments' => 'boolean',
         'requires_event_details' => 'boolean',
         'requires_approval' => 'boolean',
-
     ];
 
-    public function requests()
+    /**
+     * Requests using this service.
+     */
+    public function requests(): BelongsToMany
     {
         return $this->belongsToMany(
             DocumentRequest::class,
@@ -50,5 +57,14 @@ class Service extends Model
             'service_id',
             'request_id'
         );
+    }
+
+    /**
+     * Dynamic fields belonging to this service.
+     */
+    public function fields(): HasMany
+    {
+        return $this->hasMany(ServiceField::class)
+                    ->orderBy('display_order');
     }
 }

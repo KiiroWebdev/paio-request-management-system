@@ -1,14 +1,10 @@
-<div class="card shadow-sm border-0">
+<div {{ $attributes->merge(['class' => 'card shadow-sm border-0']) }}>
 
-    @isset($title)
+    @isset($header)
 
         <div class="card-header bg-white">
 
-            <h5 class="mb-0 fw-bold">
-
-                {{ $title }}
-
-            </h5>
+            {{ $header }}
 
         </div>
 
@@ -19,5 +15,15 @@
         {{ $slot }}
 
     </div>
+
+    @isset($footer)
+
+        <div class="card-footer bg-white">
+
+            {{ $footer }}
+
+        </div>
+
+    @endisset
 
 </div>

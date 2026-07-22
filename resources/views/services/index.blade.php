@@ -144,22 +144,34 @@
 
                     <td class="text-center">
 
-                        <x-admin.action-buttons
-                            :edit="route('services.edit', $service)"
-                            :delete="route('services.destroy', $service)"
-                            :modalId="'deleteService'.$service->id">
+    <div class="d-flex justify-content-center align-items-center gap-2">
 
-                            Are you sure you want to delete
+        <a href="{{ route('services.fields.index', $service) }}"
+           class="btn btn-sm btn-outline-primary"
+           title="Manage Fields">
 
-                            <strong>{{ $service->name }}</strong>?
+            <i class="bi bi-ui-checks-grid"></i>
 
-                            <br><br>
+        </a>
 
-                            This action cannot be undone.
+        <x-admin.action-buttons
+            :edit="route('services.edit', $service)"
+            :delete="route('services.destroy', $service)"
+            :modalId="'deleteService'.$service->id">
 
-                        </x-admin.action-buttons>
+            Are you sure you want to delete
 
-                    </td>
+            <strong>{{ $service->name }}</strong>?
+
+            <br><br>
+
+            This action cannot be undone.
+
+        </x-admin.action-buttons>
+
+    </div>
+
+</td>
 
                 </tr>
 

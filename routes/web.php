@@ -7,6 +7,7 @@ use App\Http\Controllers\DocumentRequestController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ServiceFieldController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -32,6 +33,13 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('services', ServiceController::class);
 
+    Route::prefix('services/{service}')
+    ->name('services.')
+    ->group(function () {
+
+        Route::resource('fields', ServiceFieldController::class);
+
+    });
 });
 
 require __DIR__.'/auth.php';
