@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class FieldOption extends Model
 {
@@ -12,13 +11,11 @@ class FieldOption extends Model
         'label',
         'value',
         'display_order',
+        'active',
     ];
 
-    /**
-     * The service field this option belongs to.
-     */
-    public function serviceField(): BelongsTo
+    public function field()
     {
-        return $this->belongsTo(ServiceField::class);
+        return $this->belongsTo(ServiceField::class, 'service_field_id');
     }
 }

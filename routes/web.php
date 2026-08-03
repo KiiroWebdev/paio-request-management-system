@@ -8,6 +8,8 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ServiceFieldController;
+use App\Http\Controllers\RequestWizardController;
+use App\Http\Controllers\ServiceFieldOptionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,25 +21,112 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 Route::middleware('auth')->group(function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | Profile
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('organizations', OrganizationController::class);
-    Route::resource('contacts', ContactController::class);
-    // Request Wizard
-    Route::get('/requests/wizard', [DocumentRequestController::class, 'wizard'])
-        ->name('requests.wizard');
 
-    // Request CRUD
-    Route::resource('requests', DocumentRequestController::class);
+    /*
+    |--------------------------------------------------------------------------
+    | Master Data
+    |--------------------------------------------------------------------------
+    */
 
     Route::resource('services', ServiceController::class);
+    Route::resource('organizations', OrganizationController::class);
+    Route::resource('contacts', ContactController::class);
 
-    Route::prefix('services/{service}')
-    ->name('services.')
+    /*
+    |--------------------------------------------------------------------------
+    | Request Management
+    |--------------------------------------------------------------------------
+    */
+
+    Route::resource('requests', DocumentRequestController::class);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Request Wizard
+    |--------------------------------------------------------------------------
+    */
+    Route::get('/new-request', [RequestWizardController::class, 'services'])
+    ->name('request-wizard.services');
+
+    Route::get('/request/{service:slug}', [RequestWizardController::class, 'create'])
+        ->name('request-wizard.create');
+
+    Route::post('/request/{service:slug}', [RequestWizardController::class, 'store'])
+        ->name('request-wizard.store');
+
+    
+
+    /*
+    |--------------------------------------------------------------------------
+    | Service Field Designer
+    |--------------------------------------------------------------------------
+    */
+
+   Route::prefix('services/{service}')
+    ->name('services.fields.')
     ->group(function () {
 
-        Route::resource('fields', ServiceFieldController::class);
+        // List Fields
+        Route::get('/fields', [ServiceFieldController::class, 'index'])
+            ->name('index');
+
+        // Create Field
+        Route::get('/fields/create', [ServiceFieldController::class, 'create'])
+            ->name('create');
+
+        Route::post('/fields', [ServiceFieldController::class, 'store'])
+            ->name('store');
+
+        // Edit Field
+        Route::get('/fields/{field}/edit', [ServiceFieldController::class, 'edit'])
+            ->name('edit');
+
+        Route::put('/fields/{field}', [ServiceFieldController::class, 'update'])
+            ->name('update');
+
+        // Delete Field
+        Route::delete('/fields/{field}', [ServiceFieldController::class, 'destroy'])
+            ->name('destroy');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Service Field Options
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get(
+            '/fields/{field}/options',
+            [ServiceFieldOptionController::class, 'index']
+        )->name('options.index');
+
+        Route::post(
+            '/fields/{field}/options',
+            [ServiceFieldOptionController::class, 'store']
+        )->name('options.store');
+
+        Route::get(
+    '/fields/{field}/options/{option}/edit',
+    [ServiceFieldOptionController::class, 'edit']
+)->name('options.edit');
+
+        Route::put(
+            '/fields/{field}/options/{option}',
+            [ServiceFieldOptionController::class, 'update']
+        )->name('options.update');
+
+        Route::delete(
+            '/fields/{field}/options/{option}',
+            [ServiceFieldOptionController::class, 'destroy']
+        )->name('options.destroy');
 
     });
 });

@@ -67,4 +67,13 @@ class Service extends Model
         return $this->hasMany(ServiceField::class)
                     ->orderBy('display_order');
     }
+
+   
+    /**
+ * Use the slug for route model binding.
+ */
+public function getRouteKeyName(): string
+{
+    return 'slug';
+}
 }

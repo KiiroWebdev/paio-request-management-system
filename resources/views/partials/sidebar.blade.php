@@ -55,7 +55,7 @@
 
         <div class="submenu-group">
 
-            <a href="{{ route('requests.wizard') }}">
+            <a href="{{ route('request-wizard.services') }}">
                 <i class="bi bi-plus-circle"></i>
                 <span>New Request</span>
             </a>

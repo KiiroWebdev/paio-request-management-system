@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class DocumentRequest extends Model
 {
@@ -79,13 +81,18 @@ class DocumentRequest extends Model
         return $this->belongsTo(Contact::class);
     }
 
-    public function services()
+    public function services(): BelongsToMany
+{
+    return $this->belongsToMany(
+        Service::class,
+        'request_service',
+        'request_id',
+        'service_id'
+    );
+}
+
+    public function answers(): HasMany
     {
-        return $this->belongsToMany(
-            Service::class,
-            'request_service',
-            'request_id',
-            'service_id'
-        );
+        return $this->hasMany(RequestAnswer::class, 'request_id');
     }
 }

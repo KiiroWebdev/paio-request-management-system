@@ -8,14 +8,7 @@ use Illuminate\Http\Request;
 
 class DocumentRequestController extends Controller
 {
-    public function wizard()
-    {
-        $services = Service::where('is_active', true)
-            ->orderBy('sort_order')
-            ->get();
-
-        return view('requests.wizard', compact('services'));
-    }
+    
 
     /**
      * Display a listing of the resource.
@@ -47,9 +40,16 @@ class DocumentRequestController extends Controller
      * Display the specified resource.
      */
     public function show(DocumentRequest $documentRequest)
-    {
-        //
-    }
+{
+    $documentRequest->load([
+        'organization',
+        'contact',
+        'services',
+        'answers.field.fieldType',
+    ]);
+
+    dd($documentRequest->toArray());
+}
 
     /**
      * Show the form for editing the specified resource.

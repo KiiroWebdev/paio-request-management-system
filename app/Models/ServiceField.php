@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\ServiceFieldOption;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -39,7 +40,7 @@ class ServiceField extends Model
 
     public function options(): HasMany
     {
-        return $this->hasMany(FieldOption::class)
+        return $this->hasMany(ServiceFieldOption::class)
                     ->orderBy('display_order');
     }
 }

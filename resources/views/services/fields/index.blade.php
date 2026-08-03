@@ -149,7 +149,7 @@
                         <div class="btn-group">
 
                             {{-- Options --}}
-                            @if($field->fieldType->name === 'Select')
+                            @if(in_array($field->fieldType->key, ['select', 'checkbox']))
 
                                 <a href="#"
                                    class="btn btn-sm btn-outline-info"

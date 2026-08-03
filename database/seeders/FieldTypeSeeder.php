@@ -9,63 +9,74 @@ class FieldTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        $fieldTypes = [
+        $types = [
 
             [
                 'name' => 'Text',
+                'key' => 'text',
                 'icon' => 'bi-input-cursor-text',
-                'description' => 'Single line text'
+                'description' => 'Single line text input',
             ],
 
             [
                 'name' => 'Textarea',
+                'key' => 'textarea',
                 'icon' => 'bi-textarea-t',
-                'description' => 'Multiple line text'
+                'description' => 'Multiple line text input',
             ],
 
             [
                 'name' => 'Number',
+                'key' => 'number',
                 'icon' => 'bi-123',
-                'description' => 'Numeric value'
+                'description' => 'Numeric input',
             ],
 
             [
                 'name' => 'Date',
+                'key' => 'date',
                 'icon' => 'bi-calendar-event',
-                'description' => 'Date picker'
+                'description' => 'Date picker',
             ],
 
             [
                 'name' => 'Time',
+                'key' => 'time',
                 'icon' => 'bi-clock',
-                'description' => 'Time picker'
+                'description' => 'Time picker',
             ],
 
             [
                 'name' => 'Select',
-                'icon' => 'bi-menu-button',
-                'description' => 'Dropdown list'
+                'key' => 'select',
+                'icon' => 'bi-menu-button-wide',
+                'description' => 'Dropdown selection',
             ],
 
             [
                 'name' => 'Checkbox',
-                'icon' => 'bi-check-square',
-                'description' => 'Yes / No'
+                'key' => 'checkbox',
+                'icon' => 'bi-check2-square',
+                'description' => 'Multiple choice checkboxes',
             ],
 
             [
                 'name' => 'File',
+                'key' => 'file',
                 'icon' => 'bi-paperclip',
-                'description' => 'File Upload'
+                'description' => 'File upload',
             ],
 
         ];
 
-        foreach ($fieldTypes as $fieldType) {
+        foreach ($types as $type) {
 
-            FieldType::firstOrCreate(
-                ['name' => $fieldType['name']],
-                $fieldType
+            FieldType::updateOrCreate(
+
+                ['key' => $type['key']],
+
+                $type
+
             );
 
         }

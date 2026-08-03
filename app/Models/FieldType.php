@@ -9,6 +9,7 @@ class FieldType extends Model
 {
     protected $fillable = [
         'name',
+        'key',
         'icon',
         'description',
     ];
