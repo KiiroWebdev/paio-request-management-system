@@ -17,21 +17,23 @@ return new class extends Migration
             $table->string('short_name')->nullable();
 
             $table->enum('type', [
-                'Department',
-                'Office',
-                'Barangay',
-                'National Agency',
-                'GOCC',
-                'School',
-                'University',
-                'Hospital',
-                'Private Company',
-                'NGO',
-                'Peoples Organization',
-                'Media',
-                'Individual',
-                'Other'
-            ]);
+    'Department',
+    'Office',
+    'Division',
+    'Section',
+    'Barangay',
+    'National Agency',
+    'GOCC',
+    'School',
+    'University',
+    'Hospital',
+    'Private Company',
+    'NGO',
+    "Peoples Organization",
+    'Media',
+    'Individual',
+    'Other',
+]);
 
             $table->boolean('is_internal')->default(false);
 

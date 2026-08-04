@@ -36,196 +36,355 @@
                 @csrf
 
                 {{-- ========================================================= --}}
-                {{-- Request Information --}}
-                {{-- ========================================================= --}}
+{{-- Request Information --}}
+{{-- ========================================================= --}}
 
-                <h5 class="mb-3">Request Information</h5>
+<h5 class="mb-4">
+    Request Information
+</h5>
 
-                <div class="row">
+{{-- Organization & Requestor --}}
+<div class="row">
 
-                    <div class="col-md-6 mb-3">
+    <div class="col-md-6 mb-3">
 
-                        <label class="form-label">
-                            Title <span class="text-danger">*</span>
-                        </label>
+        <label class="form-label">
+            Organization <span class="text-danger">*</span>
+        </label>
 
-                        <input
-                            type="text"
-                            name="title"
-                            value="{{ old('title') }}"
-                            class="form-control @error('title') is-invalid @enderror"
-                            required>
+        <select
+            name="organization_id"
+            id="organization_id"
+            class="form-select @error('organization_id') is-invalid @enderror">
 
-                        @error('title')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+            <option value="">Select Organization</option>
 
-                    </div>
+            @foreach($organizations as $organization)
 
-                    <div class="col-md-6 mb-3">
+                <option
+                    value="{{ $organization->id }}"
+                    data-organization="{{ $organization->id }}"
+                    @selected(old('organization_id') == $organization->id)>
 
-                        <label class="form-label">
-                            Subject <span class="text-danger">*</span>
-                        </label>
+                    {{ $organization->name }}
 
-                        <input
-                            type="text"
-                            name="subject"
-                            value="{{ old('subject') }}"
-                            class="form-control @error('subject') is-invalid @enderror"
-                            required>
+                </option>
 
-                        @error('subject')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+            @endforeach
 
-                    </div>
+        </select>
 
-                </div>
+        @error('organization_id')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
 
-                <div class="mb-3">
+    </div>
 
-                    <label class="form-label">
-                        Description
-                    </label>
+    <div class="col-md-6 mb-3">
 
-                    <textarea
-                        name="description"
-                        rows="4"
-                        class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+        <label class="form-label">
+            Requestor <span class="text-danger">*</span>
+        </label>
 
-                    @error('description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+        <select
+            name="contact_id"
+            id="contact_id"
+            class="form-select @error('contact_id') is-invalid @enderror">
 
-                </div>
+            <option value="">
+                Select Requestor
+            </option>
 
-                <div class="row">
+            @foreach($contacts as $contact)
 
-                    <div class="col-md-4 mb-3">
+                <option
+                    value="{{ $contact->id }}"
+                    data-organization="{{ $contact->organization_id }}"
+                    @selected(old('contact_id') == $contact->id)>
 
-                        <label class="form-label">
-                            Date Received <span class="text-danger">*</span>
-                        </label>
+                    {{ $contact->full_name }}
 
-                        <input
-                            type="date"
-                            name="date_received"
-                            value="{{ old('date_received', now()->toDateString()) }}"
-                            class="form-control @error('date_received') is-invalid @enderror"
-                            required>
+                </option>
 
-                        @error('date_received')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+            @endforeach
 
-                    </div>
+        </select>
 
-                    <div class="col-md-4 mb-3">
-
-                        <label class="form-label">
-                            Request Type
-                        </label>
-
-                        <select
-                            name="request_type"
-                            class="form-select @error('request_type') is-invalid @enderror">
-
-                            <option value="Internal"
-                                {{ old('request_type') == 'Internal' ? 'selected' : '' }}>
-                                Internal
-                            </option>
-
-                            <option value="External"
-                                {{ old('request_type') == 'External' ? 'selected' : '' }}>
-                                External
-                            </option>
-
-                        </select>
-
-                        @error('request_type')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-
-                    </div>
-
-                    <div class="col-md-4 mb-3">
-
-                        <label class="form-label">
-                            Priority
-                        </label>
-
-                        <select
-                            name="priority"
-                            class="form-select @error('priority') is-invalid @enderror">
-
-                            <option value="Low"
-                                {{ old('priority') == 'Low' ? 'selected' : '' }}>
-                                Low
-                            </option>
-
-                            <option value="Normal"
-                                {{ old('priority', 'Normal') == 'Normal' ? 'selected' : '' }}>
-                                Normal
-                            </option>
-
-                            <option value="High"
-                                {{ old('priority') == 'High' ? 'selected' : '' }}>
-                                High
-                            </option>
-
-                            <option value="Urgent"
-                                {{ old('priority') == 'Urgent' ? 'selected' : '' }}>
-                                Urgent
-                            </option>
-
-                        </select>
-
-                        @error('priority')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-
-                    </div>
-
-                </div>
-
-                <hr>
-
-                {{-- ========================================================= --}}
-                {{-- Dynamic Service Fields --}}
-                {{-- ========================================================= --}}
-
-                <h5 class="mb-3">
-                    Service Information
-                </h5>
-
-                @foreach($service->fields as $field)
-
-                    <x-dynamic.field
-                        :field="$field"
-                        :name="'answers['.$field->id.']'"
-                        :value="old('answers.'.$field->id)"
-                    />
-
-                @endforeach
-
-                <hr>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary">
-
-                    <i class="bi bi-send"></i>
-                    Submit Request
-
-                </button>
-
-            </form>
-
-        </div>
+        @error('contact_id')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
 
     </div>
 
 </div>
+
+{{-- Title & Subject --}}
+<div class="row">
+
+    <div class="col-md-6 mb-3">
+
+        <label class="form-label">
+            Title <span class="text-danger">*</span>
+        </label>
+
+        <input
+            type="text"
+            name="title"
+            value="{{ old('title') }}"
+            class="form-control @error('title') is-invalid @enderror"
+            required>
+
+        @error('title')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+
+    <div class="col-md-6 mb-3">
+
+        <label class="form-label">
+            Subject <span class="text-danger">*</span>
+        </label>
+
+        <input
+            type="text"
+            name="subject"
+            value="{{ old('subject') }}"
+            class="form-control @error('subject') is-invalid @enderror"
+            required>
+
+        @error('subject')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+
+</div>
+
+{{-- Description --}}
+<div class="mb-3">
+
+    <label class="form-label">
+        Description
+    </label>
+
+    <textarea
+        name="description"
+        rows="4"
+        class="form-control @error('description') is-invalid @enderror">{{ old('description') }}</textarea>
+
+    @error('description')
+        <div class="invalid-feedback">
+            {{ $message }}
+        </div>
+    @enderror
+
+</div>
+
+{{-- Date / Type / Priority --}}
+<div class="row">
+
+    <div class="col-md-4 mb-3">
+
+        <label class="form-label">
+            Date Received <span class="text-danger">*</span>
+        </label>
+
+        <input
+            type="date"
+            name="date_received"
+            value="{{ old('date_received', now()->toDateString()) }}"
+            class="form-control @error('date_received') is-invalid @enderror"
+            required>
+
+        @error('date_received')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+
+    <div class="col-md-4 mb-3">
+
+        <label class="form-label">
+            Request Type
+        </label>
+
+        <select
+            name="request_type"
+            class="form-select @error('request_type') is-invalid @enderror">
+
+            <option value="Internal"
+                @selected(old('request_type') == 'Internal')>
+                Internal
+            </option>
+
+            <option value="External"
+                @selected(old('request_type') == 'External')>
+                External
+            </option>
+
+        </select>
+
+        @error('request_type')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+
+    <div class="col-md-4 mb-3">
+
+        <label class="form-label">
+            Priority
+        </label>
+
+        <select
+            name="priority"
+            class="form-select @error('priority') is-invalid @enderror">
+
+            <option value="Low"
+                @selected(old('priority') == 'Low')>
+                Low
+            </option>
+
+            <option value="Normal"
+                @selected(old('priority', 'Normal') == 'Normal')>
+                Normal
+            </option>
+
+            <option value="High"
+                @selected(old('priority') == 'High')>
+                High
+            </option>
+
+            <option value="Urgent"
+                @selected(old('priority') == 'Urgent')>
+                Urgent
+            </option>
+
+        </select>
+
+        @error('priority')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+
+</div>
+
+<hr class="my-4">
+
+{{-- ========================================================= --}}
+{{-- Service Information --}}
+{{-- ========================================================= --}}
+
+<h5 class="mb-3">
+    Service Information
+</h5>
+
+@foreach($service->fields as $field)
+
+    <x-dynamic.field
+        :field="$field"
+        :name="'answers['.$field->id.']'"
+        :value="old('answers.'.$field->id)"
+    />
+
+@endforeach
+
+<div class="mt-4">
+
+    <button
+        type="submit"
+        class="btn btn-primary">
+
+        <i class="bi bi-send"></i>
+        Submit Request
+
+    </button>
+
+    <a
+        href="{{ route('request-wizard.services') }}"
+        class="btn btn-secondary">
+
+        Cancel
+
+    </a>
+
+</div>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const organization = document.getElementById('organization_id');
+    const contact = document.getElementById('contact_id');
+
+    if (!organization || !contact) {
+        return;
+    }
+
+    const allContacts = Array.from(contact.options);
+
+    function filterContacts() {
+
+        const selectedOrg = organization.value;
+        const selectedContact = contact.value;
+
+        contact.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select Requestor';
+        contact.appendChild(placeholder);
+
+        allContacts.forEach(function(option) {
+
+            if (option.value === '') return;
+
+            if (option.dataset.organization === selectedOrg) {
+
+                const clone = option.cloneNode(true);
+
+                if (clone.value === selectedContact) {
+                    clone.selected = true;
+                }
+
+                contact.appendChild(clone);
+
+            }
+
+        });
+
+    }
+
+    organization.addEventListener('change', filterContacts);
+
+    filterContacts();
+
+});
+</script>
+@endpush
 
 @endsection

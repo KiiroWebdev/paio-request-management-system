@@ -14,43 +14,63 @@ class StoreRequestRequest extends FormRequest
     }
 
     public function rules(BuildValidationRules $builder): array
-    {
-        $service = $this->route('service');
+{
+    $service = $this->route('service');
 
-        if (! $service instanceof Service) {
-            $service = Service::where('slug', $service)->firstOrFail();
-        }
-
-        return array_merge([
-
-            // Request Information
-            'title' => ['required', 'string', 'max:255'],
-
-            'subject' => ['required', 'string', 'max:255'],
-
-            'description' => ['nullable', 'string'],
-
-            'date_received' => ['required', 'date'],
-
-            'request_type' => ['required', 'in:Internal,External'],
-
-            'priority' => ['required', 'in:Low,Normal,High,Urgent'],
-
-        ], $builder->execute($service));
+    if (! $service instanceof Service) {
+        $service = Service::where('slug', $service)->firstOrFail();
     }
 
-    public function messages(): array
-    {
-        return [
+    return array_merge([
 
-            'required' => 'This field is required.',
+        /*
+        |--------------------------------------------------------------------------
+        | Request Information
+        |--------------------------------------------------------------------------
+        */
 
-            'date' => 'Please enter a valid date.',
+        'organization_id' => [
+            'required',
+            'exists:organizations,id',
+        ],
 
-            'numeric' => 'Please enter a valid number.',
+        'contact_id' => [
+            'required',
+            'exists:contacts,id',
+        ],
 
-            'file' => 'Please upload a valid file.',
+        'title' => [
+            'required',
+            'string',
+            'max:255',
+        ],
 
-        ];
-    }
+        'subject' => [
+            'required',
+            'string',
+            'max:255',
+        ],
+
+        'description' => [
+            'nullable',
+            'string',
+        ],
+
+        'date_received' => [
+            'required',
+            'date',
+        ],
+
+        'request_type' => [
+            'required',
+            'in:Internal,External',
+        ],
+
+        'priority' => [
+            'required',
+            'in:Low,Normal,High,Urgent',
+        ],
+
+    ], $builder->execute($service));
+}
 }

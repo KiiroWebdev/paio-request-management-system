@@ -57,29 +57,10 @@ class BuildValidationRules
 
         $rules = [
 
-            /*
-            |--------------------------------------------------------------------------
-            | Static Request Fields
-            |--------------------------------------------------------------------------
-            */
+    'answers' => ['array'],
 
-            'title' => ['required', 'string', 'max:255'],
-
-            'subject' => ['required', 'string', 'max:255'],
-
-            'description' => ['nullable', 'string'],
-
-            'request_type' => ['required', 'in:Internal,External'],
-
-            'organization_id' => ['nullable', 'exists:organizations,id'],
-
-            'contact_id' => ['nullable', 'exists:contacts,id'],
-
-            'priority' => ['required', 'in:Low,Normal,High,Urgent'],
-
-            'answers' => ['array'],
-
-        ];
+];
+          
 
         /*
         |--------------------------------------------------------------------------

@@ -1,5 +1,7 @@
 @extends('layouts.master')
 
+@section('page-title', 'Incoming Requests')
+
 @section('content')
 
 <div class="container-fluid">
@@ -10,11 +12,10 @@
             Incoming Requests
         </h2>
 
-        <a href="{{ route('requests.create') }}"
+        <a href="{{ route('request-wizard.services') }}"
            class="btn btn-primary">
 
             <i class="bi bi-plus-circle"></i>
-
             New Request
 
         </a>
@@ -25,99 +26,152 @@
 
         <div class="card-body">
 
-            <table class="table table-hover align-middle">
+            <div class="table-responsive">
 
-                <thead>
+                <table class="table table-hover align-middle">
 
-                    <tr>
+                    <thead>
 
-                        <th>Control No.</th>
-                        <th>Requester</th>
-                        <th>Department</th>
-                        <th>Subject</th>
-                        <th>Status</th>
-                        <th>Priority</th>
-                        <th>Due Date</th>
-                        <th width="180">Actions</th>
+                        <tr>
 
-                    </tr>
+                            <th>Control No.</th>
+                            <th>Service</th>
+                            <th>Requester</th>
+                            <th>Department</th>
+                            <th>Subject</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Due Date</th>
+                            <th width="160">Actions</th>
 
-                </thead>
+                        </tr>
 
-                <tbody>
+                    </thead>
 
-                    @forelse($requests as $request)
+                    <tbody>
 
-                    <tr>
+                        @forelse($requests as $request)
 
-                        <td>{{ $request->control_no }}</td>
+                            <tr>
 
-                        <td>{{ $request->requester }}</td>
+                                <td>
 
-                        <td>{{ $request->department }}</td>
+                                    <strong>
+                                        {{ $request->control_no }}
+                                    </strong>
 
-                        <td>{{ $request->subject }}</td>
+                                </td>
 
-                        <td>
+                                <td>
 
-                            <span class="badge bg-warning">
+                                    {{ $request->services->first()?->name ?? '-' }}
 
-                                {{ $request->status }}
+                                </td>
 
-                            </span>
+                                <td>
 
-                        </td>
+                                    {{ $request->contact?->full_name ?? '-' }}
 
-                        <td>
+                                </td>
 
-                            {{ $request->priority }}
+                                <td>
 
-                        </td>
+                                    {{ $request->organization?->name ?? '-' }}
 
-                        <td>
+                                </td>
 
-                            {{ optional($request->due_date)->format('M d, Y') }}
+                                <td>
 
-                        </td>
+                                    {{ $request->subject }}
 
-                        <td>
+                                </td>
 
-                            <a href="{{ route('requests.show',$request) }}"
-                               class="btn btn-sm btn-info">
+                                <td>
 
-                                <i class="bi bi-eye"></i>
+                                    @php
+                                        $statusColor = match($request->status) {
+                                            'Incoming' => 'warning',
+                                            'Ongoing' => 'primary',
+                                            'Completed' => 'success',
+                                            'Archived' => 'secondary',
+                                            default => 'dark',
+                                        };
+                                    @endphp
 
-                            </a>
+                                    <span class="badge bg-{{ $statusColor }}">
 
-                            <a href="{{ route('requests.edit',$request) }}"
-                               class="btn btn-sm btn-success">
+                                        {{ $request->status }}
 
-                                <i class="bi bi-pencil"></i>
+                                    </span>
 
-                            </a>
+                                </td>
 
-                        </td>
+                                <td>
 
-                    </tr>
+                                    @php
+                                        $priorityColor = match($request->priority) {
+                                            'Urgent' => 'danger',
+                                            'High' => 'warning',
+                                            'Normal' => 'primary',
+                                            'Low' => 'secondary',
+                                            default => 'secondary',
+                                        };
+                                    @endphp
 
-                    @empty
+                                    <span class="badge bg-{{ $priorityColor }}">
 
-                    <tr>
+                                        {{ $request->priority }}
 
-                        <td colspan="8"
-                            class="text-center text-muted py-5">
+                                    </span>
 
-                            No requests found.
+                                </td>
 
-                        </td>
+                                <td>
 
-                    </tr>
+                                    {{ optional($request->due_date)->format('M d, Y') ?? '-' }}
 
-                    @endforelse
+                                </td>
 
-                </tbody>
+                                <td>
 
-            </table>
+                                    <a href="{{ route('requests.show', $request) }}"
+                                       class="btn btn-sm btn-info">
+
+                                        <i class="bi bi-eye"></i>
+
+                                    </a>
+
+                                    <a href="{{ route('requests.edit', $request) }}"
+                                       class="btn btn-sm btn-success">
+
+                                        <i class="bi bi-pencil"></i>
+
+                                    </a>
+
+                                </td>
+
+                            </tr>
+
+                        @empty
+
+                            <tr>
+
+                                <td colspan="9"
+                                    class="text-center text-muted py-5">
+
+                                    No requests found.
+
+                                </td>
+
+                            </tr>
+
+                        @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 

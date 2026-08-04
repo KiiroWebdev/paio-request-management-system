@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Service;
 use App\Http\Requests\StoreRequestRequest;
 use App\Services\RequestSubmissionService;
+use App\Models\Organization;
+use App\Models\Contact;
 
 class RequestWizardController extends Controller
 {
@@ -33,9 +35,21 @@ class RequestWizardController extends Controller
         'fields.options',
     ]);
 
+    $organizations = Organization::where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    $contacts = Contact::where('is_active', true)
+        ->orderBy('last_name')
+        ->get();
+
     return view(
         'request-wizard.create',
-        compact('service')
+        compact(
+            'service',
+            'organizations',
+            'contacts'
+        )
     );
 }
 
@@ -47,6 +61,8 @@ class RequestWizardController extends Controller
         Service $service,
         RequestSubmissionService $submissionService
     ) {
+        
+
         $data = $request->validated();
 
         // Associate the selected service
