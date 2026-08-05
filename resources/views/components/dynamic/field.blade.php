@@ -8,6 +8,7 @@
     $type = $field->fieldType->key;
 @endphp
 
+
 @switch($type)
 
     @case('text')

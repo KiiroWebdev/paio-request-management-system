@@ -55,10 +55,12 @@
 
                 <div class="row">
 
-                    <div class="col-md-5">
+                   <div class="col-md-5">
 
     <label class="form-label">
+
         Label
+
     </label>
 
     <input
@@ -66,21 +68,25 @@
         type="text"
         name="label"
         class="form-control"
-        placeholder="Conference"
+        placeholder="Photos"
         required>
 
 </div>
 
 <div class="col-md-5">
 
-    <label class="form-label">Label</label>
+    <label class="form-label">
+
+        Value
+
+    </label>
 
     <input
-        id="option_label"
+        id="option_value"
         type="text"
-        name="label"
+        name="value"
         class="form-control"
-        placeholder="Conference"
+        placeholder="photos"
         required>
 
 </div>
@@ -88,11 +94,12 @@
                     <div class="col-md-2">
 
                         <button
-                            class="btn btn-primary w-100">
+    type="submit"
+    class="btn btn-primary w-100">
 
-                            Add
+    Add
 
-                        </button>
+</button>
 
                     </div>
 

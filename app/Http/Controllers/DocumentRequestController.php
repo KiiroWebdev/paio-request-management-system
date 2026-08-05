@@ -46,11 +46,12 @@ public function create()
     public function show(DocumentRequest $documentRequest)
 {
     $documentRequest->load([
-        'organization',
-        'contact',
-        'services',
-        'answers.field.fieldType',
-    ]);
+    'organization',
+    'contact',
+    'services',
+    'answers.field.fieldType',
+    'answers.field.options',
+]);
 
     return view(
     'requests.show',

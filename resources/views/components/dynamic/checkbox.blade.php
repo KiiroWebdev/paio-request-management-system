@@ -8,21 +8,23 @@
     :field="$field"
     :name="$name">
 
+    <div class="alert alert-success mb-2">
+        Checkbox component loaded!
+    </div>
+
+    <p>Options count: {{ $field->options->count() }}</p>
+
     @foreach($field->options as $option)
 
         <div class="form-check">
 
             <input
-                class="form-check-input"
                 type="checkbox"
+                class="form-check-input"
                 name="{{ $name }}[]"
-                value="{{ $option->value }}"
-                id="option{{ $option->id }}"
-                @checked(is_array($value) && in_array($option->value, $value))>
+                value="{{ $option->value }}">
 
-            <label
-                class="form-check-label"
-                for="option{{ $option->id }}">
+            <label class="form-check-label">
 
                 {{ $option->label }}
 

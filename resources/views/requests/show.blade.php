@@ -6,133 +6,424 @@
 
 <div class="container-fluid">
 
-    <div class="card shadow-sm">
+    <div class="row">
 
-        <div class="card-header">
+        {{-- ========================================= --}}
+        {{-- Main Content --}}
+        {{-- ========================================= --}}
 
-            <h3>
+        <div class="col-lg-8">
 
-                {{ $documentRequest->title }}
+            {{-- Header --}}
+            <div class="card shadow-sm mb-4">
 
-            </h3>
+                <div class="card-body">
 
-            <small class="text-muted">
+                    <div class="d-flex justify-content-between align-items-start">
 
-                Control No.
+                        <div>
 
-                <strong>
+                            <h3 class="fw-bold mb-1">
 
-                    {{ $documentRequest->control_no }}
+                                {{ $documentRequest->control_no }}
 
-                </strong>
+                            </h3>
 
-            </small>
+                            <h5 class="text-muted">
 
-        </div>
+                                {{ $documentRequest->services->first()?->name }}
 
-        <div class="card-body">
+                            </h5>
 
-       <div class="row">
+                        </div>
 
-    <div class="col-md-6">
+                        <div class="text-end">
 
-        <p>
+                            @php
+                                $statusColor = match($documentRequest->status){
+                                    'Incoming' => 'warning',
+                                    'Ongoing' => 'primary',
+                                    'Completed' => 'success',
+                                    'Archived' => 'secondary',
+                                    default => 'dark',
+                                };
 
-            <strong>Subject</strong>
+                                $priorityColor = match($documentRequest->priority){
+                                    'Urgent' => 'danger',
+                                    'High' => 'warning',
+                                    'Normal' => 'primary',
+                                    'Low' => 'secondary',
+                                    default => 'secondary',
+                                };
+                            @endphp
 
-            <br>
+                            <span class="badge bg-{{ $statusColor }} fs-6">
 
-            {{ $documentRequest->subject }}
+                                {{ $documentRequest->status }}
 
-        </p>
+                            </span>
 
-    </div>
+                            <br><br>
 
-    <div class="col-md-3">
+                            <span class="badge bg-{{ $priorityColor }}">
 
-        <p>
+                                {{ $documentRequest->priority }}
 
-            <strong>Status</strong>
+                            </span>
 
-            <br>
+                        </div>
 
-            {{ $documentRequest->status }}
+                    </div>
 
-        </p>
+                </div>
 
-    </div>
+            </div>
 
-    <div class="col-md-3">
+            {{-- ========================================= --}}
+            {{-- Request Information --}}
+            {{-- ========================================= --}}
 
-        <p>
+            <div class="card shadow-sm mb-4">
 
-            <strong>Priority</strong>
+                <div class="card-header">
 
-            <br>
+                    <strong>
 
-            {{ $documentRequest->priority }}
+                        <i class="bi bi-file-earmark-text"></i>
 
-        </p>
+                        Request Information
 
-    </div>
+                    </strong>
 
-</div>
+                </div>
 
-<hr>
+                <div class="card-body">
 
-<h5>
+                    <div class="row">
 
-    Service Information
+                        <div class="col-md-6 mb-3">
 
-</h5>
+                            <label class="text-muted">
+                                Organization
+                            </label>
 
-<table class="table">
+                            <div class="fw-semibold">
 
-    <tbody>
+                                {{ $documentRequest->organization?->name ?? '-' }}
 
-    @foreach($documentRequest->answers as $answer)
+                            </div>
 
-        <tr>
+                        </div>
 
-            <th width="250">
+                        <div class="col-md-6 mb-3">
+
+                            <label class="text-muted">
+                                Requestor
+                            </label>
+
+                            <div class="fw-semibold">
+
+                                {{ $documentRequest->contact?->full_name ?? '-' }}
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="text-muted">
+                                Subject
+                            </label>
+
+                            <div class="fw-semibold">
+
+                                {{ $documentRequest->subject }}
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <label class="text-muted">
+                                Date Received
+                            </label>
+
+                            <div class="fw-semibold">
+
+                                {{ $documentRequest->date_received?->format('F d, Y') }}
+
+                            </div>
+
+                        </div>
+
+                        <div class="col-12">
+
+                            <label class="text-muted">
+
+                                Description
+
+                            </label>
+
+                            <div class="fw-semibold">
+
+                                {{ $documentRequest->description ?: '-' }}
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- ========================================= --}}
+            {{-- Service Information --}}
+            {{-- ========================================= --}}
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    <strong>
+
+                        <i class="bi bi-list-check"></i>
+
+                        Service Information
+
+                    </strong>
+
+                </div>
+
+                <div class="card-body">
+
+          @forelse($documentRequest->answers as $answer)
+
+    @php
+
+        $type = $answer->field->fieldType->key;
+
+        $value = $answer->value;
+
+    @endphp
+
+    <div class="row mb-3">
+
+        <div class="col-md-4">
+
+            <strong>
 
                 {{ $answer->field->label }}
 
-            </th>
+            </strong>
 
-            <td>
+        </div>
 
-                @if(is_array($answer->formatted_value))
+        <div class="col-md-8">
 
-                    @foreach($answer->formatted_value as $item)
+            @switch($type)
 
-                        <span class="badge bg-primary">
+                {{-- ===================================== --}}
+                {{-- Date --}}
+                {{-- ===================================== --}}
 
-                            {{ $item }}
+                @case('date')
 
-                        </span>
+                    {{ \Carbon\Carbon::parse($value)->format('F d, Y') }}
 
-                    @endforeach
+                    @break
 
-                @else
 
-                    {{ $answer->formatted_value }}
+                {{-- ===================================== --}}
+                {{-- Time --}}
+                {{-- ===================================== --}}
 
-                @endif
+                @case('time')
 
-            </td>
+                    {{ \Carbon\Carbon::parse($value)->format('h:i A') }}
 
-        </tr>
+                    @break
 
-    @endforeach
 
-    </tbody>
+                {{-- ===================================== --}}
+                {{-- Checkbox --}}
+                {{-- ===================================== --}}
 
-</table>
+                @case('checkbox')
 
-</div>
+                    @php
 
-</div>
+                        $items = json_decode($value, true);
+
+                    @endphp
+
+                    @if(is_array($items))
+
+                        @foreach($items as $item)
+
+                            <span class="badge bg-primary me-1">
+
+                                {{ $item }}
+
+                            </span>
+
+                        @endforeach
+
+                    @else
+
+                        -
+
+                    @endif
+
+                    @break
+
+
+                {{-- ===================================== --}}
+                {{-- Select --}}
+                {{-- ===================================== --}}
+
+                @case('select')
+
+                    @php
+
+                        $option = $answer->field
+                            ->options
+                            ->firstWhere('value', $value);
+
+                    @endphp
+
+                    {{ $option?->label ?? $value }}
+
+                    @break
+
+
+                {{-- ===================================== --}}
+                {{-- File --}}
+                {{-- ===================================== --}}
+
+                @case('file')
+
+                    @if($value)
+
+                        <a
+                            href="{{ asset('storage/'.$value) }}"
+                            target="_blank"
+                            class="btn btn-sm btn-outline-primary">
+
+                            <i class="bi bi-download"></i>
+
+                            View Attachment
+
+                        </a>
+
+                    @else
+
+                        -
+
+                    @endif
+
+                    @break
+
+
+                {{-- ===================================== --}}
+                {{-- Default --}}
+                {{-- ===================================== --}}
+
+                @default
+
+                    {{ $value }}
+
+            @endswitch
+
+        </div>
+
+    </div>
+
+@empty
+
+    <div class="text-muted">
+
+        No service information.
+
+    </div>
+
+@endforelse         
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {{-- ========================================= --}}
+        {{-- Sidebar --}}
+        {{-- ========================================= --}}
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    <strong>
+
+                        Actions
+
+                    </strong>
+
+                </div>
+
+                <div class="card-body d-grid gap-2">
+
+                    <a
+                        href="{{ route('requests.index') }}"
+                        class="btn btn-secondary">
+
+                        <i class="bi bi-arrow-left"></i>
+
+                        Back
+
+                    </a>
+
+                    <a
+                        href="{{ route('requests.edit',$documentRequest) }}"
+                        class="btn btn-primary">
+
+                        <i class="bi bi-pencil"></i>
+
+                        Edit Request
+
+                    </a>
+
+                    <button
+                        class="btn btn-success"
+                        disabled>
+
+                        <i class="bi bi-play-circle"></i>
+
+                        Start Processing
+
+                    </button>
+
+                    <button
+                        class="btn btn-outline-dark"
+                        disabled>
+
+                        <i class="bi bi-printer"></i>
+
+                        Print
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
