@@ -79,20 +79,20 @@ class ServiceFieldController extends Controller
      * Show the edit page.
      */
     public function edit(
-        Service $service,
-        ServiceField $field
-    ) {
-        $fieldTypes = FieldType::orderBy('name')->get();
+    Service $service,
+    ServiceField $field
+) {
+    $fieldTypes = FieldType::orderBy('name')->get();
 
-        return view(
-            'service-fields.edit',
-            compact(
-                'service',
-                'field',
-                'fieldTypes'
-            )
-        );
-    }
+    return view(
+        'services.fields.edit',
+        compact(
+            'service',
+            'field',
+            'fieldTypes'
+        )
+    );
+}
 
     /**
      * Update the field.
