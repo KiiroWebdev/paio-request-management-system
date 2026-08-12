@@ -14,40 +14,39 @@ class ServiceFieldController extends Controller
      * Display all fields for a service.
      */
     public function index(Service $service)
-    {
-        $service->load([
-            'fields.fieldType',
-        ]);
+{
+    $service->load([
+        'fields.fieldType',
+    ]);
 
-        $service->fields->loadCount('options');
+    $service->fields->loadCount('options');
 
-        $fieldTypes = FieldType::orderBy('name')->get();
+    $fieldTypes = FieldType::orderBy('name')->get();
 
-        return view(
-            'service-fields.index',
-            compact(
-                'service',
-                'fieldTypes'
-            )
-        );
-    }
+    return view(
+        'services.fields.index',
+        compact(
+            'service',
+            'fieldTypes'
+        )
+    );
+}
 
     /**
      * Show the create field page.
      */
-    public function create(Service $service)
-    {
-        $fieldTypes = FieldType::orderBy('name')->get();
+   public function create(Service $service)
+{
+    $fieldTypes = FieldType::orderBy('name')->get();
 
-        return view(
-            'service-fields.create',
-            compact(
-                'service',
-                'fieldTypes'
-            )
-        );
-    }
-
+    return view(
+        'services.fields.create',
+        compact(
+            'service',
+            'fieldTypes'
+        )
+    );
+}
     /**
      * Store a newly created field.
      */

@@ -15,11 +15,14 @@ class ServiceFieldOptionController extends Controller
      * Display all options for a field.
      */
     public function index(Service $service, ServiceField $field)
-    {
-        $field->load('options');
+{
+    $field->load('options');
 
-        return view('service-field-options.index', compact('service', 'field'));
-    }
+    return view(
+        'services.fields.options.index',
+        compact('service', 'field')
+    );
+}
 
     /**
      * Store a new option.
@@ -53,13 +56,13 @@ public function edit(
 )
 {
     return view(
-        'service-field-options.edit',
-        compact(
-            'service',
-            'field',
-            'option'
-        )
-    );
+    'services.fields.options.edit',
+    compact(
+        'service',
+        'field',
+        'option'
+    )
+);
 }
 
     /**

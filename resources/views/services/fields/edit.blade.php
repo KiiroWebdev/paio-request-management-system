@@ -1,39 +1,51 @@
 @extends('layouts.master')
 
-@section('page-title', 'Edit Field')
+@section('page-title', 'Edit Option')
 
 @section('content')
 
-<div class="container">
+<div class="container-fluid">
 
-    <div class="card shadow-sm">
+    <h2 class="mb-1">
 
-        <div class="card-header">
+        Edit Option
 
-            <h4 class="mb-0">
+    </h2>
 
-                Edit Field
+    <p class="text-muted">
 
-            </h4>
+        Field: <strong>{{ $field->label }}</strong>
+
+    </p>
+
+    <form
+        method="POST"
+        action="{{ route('services.fields.options.update', [$service, $field, $option]) }}">
+
+        @csrf
+        @method('PUT')
+
+        @include('service-field-options.form')
+
+        <div class="mt-3">
+
+            <button class="btn btn-primary">
+
+                Save Changes
+
+            </button>
+
+            <a
+                href="{{ route('services.fields.options.index', [$service, $field]) }}"
+                class="btn btn-secondary">
+
+                Cancel
+
+            </a>
 
         </div>
 
-        <div class="card-body">
-
-            <form
-                action="{{ route('services.fields.update', [$service, $field]) }}"
-                method="POST">
-
-                @csrf
-                @method('PUT')
-
-                @include('services.fields.form')
-
-            </form>
-
-        </div>
-
-    </div>
+    </form>
 
 </div>
 

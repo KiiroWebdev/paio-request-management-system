@@ -6,19 +6,17 @@
 
 <div class="container-fluid">
 
-    {{-- Page Header --}}
     <x-admin.page-header
-        :title="$service->name"
-        subtitle="Manage dynamic fields for this service">
+        :title="'Fields - '.$service->name"
+        subtitle="Manage the dynamic fields for this service">
 
         <div class="d-flex gap-2">
 
             <a href="{{ route('services.index') }}"
-               class="btn btn-light border">
+               class="btn btn-secondary">
 
                 <i class="bi bi-arrow-left"></i>
-
-                Back
+                Back to Services
 
             </a>
 
@@ -26,8 +24,7 @@
                class="btn btn-primary">
 
                 <i class="bi bi-plus-circle"></i>
-
-                Add Field
+                New Field
 
             </a>
 
@@ -35,171 +32,214 @@
 
     </x-admin.page-header>
 
-    {{-- Breadcrumb --}}
-    <x-admin.breadcrumb
-        :items="[
-            'Master Data',
-            'Services',
-            $service->name,
-            'Fields'
-        ]"/>
+    @if(session('success'))
 
-    {{-- Table --}}
-    <x-admin.table-card>
+        <div class="alert alert-success alert-dismissible fade show">
 
-        <table class="table table-hover align-middle">
+            {{ session('success') }}
 
-            <thead class="table-light">
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
 
-                <tr>
+        </div>
 
-                    <th width="80">Order</th>
+    @endif
 
-                    <th>Label</th>
+    <div class="card shadow-sm">
 
-                    <th>Field Name</th>
+        <div class="card-body">
 
-                    <th width="170">Field Type</th>
+            <table class="table table-hover align-middle">
 
-                    <th width="100">Required</th>
+                <thead class="table-light">
 
-                    <th width="100">Status</th>
+                    <tr>
 
-                    <th width="180" class="text-center">
+                        <th width="70">Order</th>
 
-                        Actions
+                        <th>Label</th>
 
-                    </th>
+                        <th>Field Name</th>
 
-                </tr>
+                        <th width="140">Type</th>
 
-            </thead>
+                        <th width="100">Required</th>
 
-            <tbody>
+                        <th width="100">Status</th>
 
-            @forelse($service->fields as $field)
+                        <th width="140">Options</th>
 
-                <tr>
+                        <th width="220" class="text-center">
 
-                    <td>
+                            Actions
 
-                        {{ $field->display_order }}
+                        </th>
 
-                    </td>
+                    </tr>
 
-                    <td>
+                </thead>
 
-                        <strong>
+                <tbody>
 
-                            {{ $field->label }}
+                @forelse($service->fields->sortBy('display_order') as $field)
 
-                        </strong>
+                    <tr>
 
-                    </td>
+                        <td>
 
-                    <td>
+                            {{ $field->display_order }}
 
-                        <code>
+                        </td>
 
-                            {{ $field->field_name }}
+                        <td>
 
-                        </code>
+                            <strong>
 
-                    </td>
+                                {{ ucwords($field->label) }}
 
-                    <td>
+                            </strong>
 
-                        <i class="bi {{ $field->fieldType->icon }}"></i>
+                        </td>
 
-                        {{ $field->fieldType->name }}
+                        <td>
 
-                    </td>
+                            <code>
 
-                    <td>
+                                {{ $field->field_name }}
 
-                        @if($field->required)
+                            </code>
 
-                            <span class="badge bg-success">
+                        </td>
 
-                                Required
+                        <td>
 
-                            </span>
+                            {{ $field->fieldType->name }}
 
-                        @else
+                        </td>
 
-                            <span class="badge bg-secondary">
+                        <td>
 
-                                Optional
+                            @if($field->required)
 
-                            </span>
+                                <span class="badge bg-danger">
 
-                        @endif
+                                    Required
 
-                    </td>
+                                </span>
 
-                    <td>
+                            @else
 
-                        <x-admin.status-badge
-                            :active="$field->active"/>
+                                <span class="badge bg-secondary">
 
-                    </td>
+                                    Optional
 
-                    <td class="text-center">
-
-                        <div class="btn-group">
-
-                            {{-- Options --}}
-                            @if(in_array($field->fieldType->key, ['select', 'checkbox']))
-
-                                <a href="#"
-                                   class="btn btn-sm btn-outline-info"
-                                   title="Manage Options">
-
-                                    <i class="bi bi-list-ul"></i>
-
-                                </a>
+                                </span>
 
                             @endif
 
-                            {{-- Edit --}}
-                            <a href="{{ route('services.fields.edit', [$service, $field]) }}"
-                               class="btn btn-sm btn-outline-primary">
+                        </td>
 
-                                <i class="bi bi-pencil"></i>
+                        <td>
 
-                            </a>
+                            <x-admin.status-badge
+                                :active="$field->active" />
 
-                            {{-- Delete --}}
-                            <button
-                                class="btn btn-sm btn-outline-danger">
+                        </td>
 
-                                <i class="bi bi-trash"></i>
+                        <td>
 
-                            </button>
+                            @php
+                                $supportsOptions = in_array(
+                                    $field->fieldType->key,
+                                    ['checkbox', 'dropdown', 'radio']
+                                );
+                            @endphp
 
-                        </div>
+                            @if($supportsOptions)
 
-                    </td>
+                                <a href="{{ route('services.fields.options.index', [$service, $field]) }}"
+                                   class="btn btn-sm btn-outline-primary">
 
-                </tr>
+                                    Manage
+                                    ({{ $field->options_count }})
 
-            @empty
+                                </a>
 
-                <x-admin.empty-state
-                    colspan="7"
-                    icon="bi-ui-checks-grid"
-                    title="No Fields Found"
-                    message="This service has no configured fields yet."
-                    buttonText="Add Field"
-                    :buttonRoute="route('services.fields.create', $service)" />
+                            @else
 
-            @endforelse
+                                <span class="text-muted">
 
-            </tbody>
+                                    —
 
-        </table>
+                                </span>
 
-    </x-admin.table-card>
+                            @endif
+
+                        </td>
+
+                        <td>
+
+                            <div class="d-flex justify-content-center gap-2">
+
+                                <a href="{{ route('services.fields.edit', [$service, $field]) }}"
+                                   class="btn btn-sm btn-outline-success">
+
+                                    <i class="bi bi-pencil"></i>
+
+                                </a>
+
+                                <form
+                                    action="{{ route('services.fields.destroy', [$service, $field]) }}"
+                                    method="POST"
+                                    onsubmit="return confirm('Delete this field?');">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button
+                                        class="btn btn-sm btn-outline-danger">
+
+                                        <i class="bi bi-trash"></i>
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </td>
+
+                    </tr>
+
+                @empty
+
+                    <tr>
+
+                        <td colspan="8">
+
+                            <x-admin.empty-state
+                                icon="bi-ui-checks-grid"
+                                title="No Fields Yet"
+                                message="Create the first dynamic field for this service."
+                                buttonText="New Field"
+                                :buttonRoute="route('services.fields.create', $service)" />
+
+                        </td>
+
+                    </tr>
+
+                @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
