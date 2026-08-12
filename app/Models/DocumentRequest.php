@@ -45,6 +45,10 @@ class DocumentRequest extends Model
 
         'created_by',
 
+        'assigned_to',
+
+        'assigned_at',
+
     ];
 
     protected $casts = [
@@ -59,9 +63,11 @@ class DocumentRequest extends Model
 
         'archived_at' => 'datetime',
 
+        'assigned_at' => 'datetime',
+
     ];
 
-    public function user(): BelongsTo
+    public function createdBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
@@ -70,6 +76,11 @@ class DocumentRequest extends Model
     {
         return $this->belongsTo(User::class, 'received_by');
     }
+
+    public function assignedTo(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }    
 
     public function organization(): BelongsTo
     {

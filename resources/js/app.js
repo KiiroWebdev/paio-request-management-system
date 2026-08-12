@@ -3,3 +3,4 @@ import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import './sidebar';
 import './request-wizard';
 import './service-fields';
+import './datatables';

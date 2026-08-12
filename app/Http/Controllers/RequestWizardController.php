@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\ControlNumberService;
 use App\Models\Service;
 use App\Http\Requests\StoreRequestRequest;
 use App\Services\RequestSubmissionService;
@@ -57,13 +58,15 @@ class RequestWizardController extends Controller
      * Store a request.
      */
     public function store(
-        StoreRequestRequest $request,
-        Service $service,
-        RequestSubmissionService $submissionService
-    ) {
+    StoreRequestWizardRequest $request,
+    ControlNumberService $controlNumberService
+) {
         
 
         $data = $request->validated();
+
+        // Generate the control number
+        $data['control_no'] = $controlNumberService->generate();
 
         // Associate the selected service
         $data['services'] = [$service->id];

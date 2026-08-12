@@ -8,24 +8,21 @@ class ControlNumberService
 {
     public function generate(): string
     {
-        $year = now()->format('Y');
+        $year = now()->year;
 
-        $lastRequest = DocumentRequest::query()
-            ->whereYear('created_at', $year)
-            ->latest('id')
-            ->first();
+        $latest = DocumentRequest::whereYear(
+            'created_at',
+            $year
+        )
+        ->latest('id')
+        ->first();
 
-        $next = 1;
-
-        if ($lastRequest) {
-
-            $parts = explode('-', $lastRequest->control_no);
-
-            $next = (int) end($parts) + 1;
-        }
+        $next = $latest
+            ? $latest->id + 1
+            : 1;
 
         return sprintf(
-            'PAIO-%s-%06d',
+            'PAIO-%d-%06d',
             $year,
             $next
         );

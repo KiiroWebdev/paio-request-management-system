@@ -42,13 +42,35 @@ Route::middleware('auth')->group(function () {
     Route::resource('contacts', ContactController::class);
 
     /*
-    |--------------------------------------------------------------------------
-    | Request Management
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Request Management
+|--------------------------------------------------------------------------
+*/
 
-    Route::resource('requests', DocumentRequestController::class);
+Route::resource('requests', DocumentRequestController::class)
+    ->parameters([
+        'requests' => 'documentRequest',
+    ]);
 
+Route::post(
+    '/requests/{documentRequest}/assign',
+    [DocumentRequestController::class, 'assign']
+)->name('requests.assign');
+
+Route::post(
+    '/requests/{documentRequest}/start',
+    [DocumentRequestController::class, 'start']
+)->name('requests.start');
+
+Route::post(
+    '/requests/{documentRequest}/complete',
+    [DocumentRequestController::class, 'complete']
+)->name('requests.complete');
+
+Route::post(
+    '/requests/{documentRequest}/archive',
+    [DocumentRequestController::class, 'archive']
+)->name('requests.archive');
     /*
     |--------------------------------------------------------------------------
     | Request Wizard

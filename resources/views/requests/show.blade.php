@@ -363,63 +363,279 @@
 
         <div class="col-lg-4">
 
-            <div class="card shadow-sm">
+    {{-- ========================================= --}}
+    {{-- Workflow --}}
+    {{-- ========================================= --}}
 
-                <div class="card-header">
+    <div class="card shadow-sm mb-4">
 
-                    <strong>
+        <div class="card-header">
 
-                        Actions
+            <strong>
 
-                    </strong>
+                <i class="bi bi-diagram-3 me-2"></i>
 
-                </div>
+                Workflow
 
-                <div class="card-body d-grid gap-2">
+            </strong>
 
-                    <a
-                        href="{{ route('requests.index') }}"
-                        class="btn btn-secondary">
+        </div>
 
-                        <i class="bi bi-arrow-left"></i>
+        <div class="card-body">
 
-                        Back
+            <div class="mb-3">
 
-                    </a>
+                <label class="text-muted">
 
-                    <a
-                        href="{{ route('requests.edit',$documentRequest) }}"
-                        class="btn btn-primary">
+                    Current Status
 
-                        <i class="bi bi-pencil"></i>
+                </label>
 
-                        Edit Request
+                <div>
 
-                    </a>
+                    @php
 
-                    <button
-                        class="btn btn-success"
-                        disabled>
+                        $statusColor = match($documentRequest->status){
 
-                        <i class="bi bi-play-circle"></i>
+                            'Incoming' => 'warning',
 
-                        Start Processing
+                            'Assigned' => 'info',
 
-                    </button>
+                            'Ongoing' => 'primary',
 
-                    <button
-                        class="btn btn-outline-dark"
-                        disabled>
+                            'Completed' => 'success',
 
-                        <i class="bi bi-printer"></i>
+                            'Archived' => 'secondary',
 
-                        Print
+                            default => 'dark',
 
-                    </button>
+                        };
+
+                    @endphp
+
+                    <span class="badge bg-{{ $statusColor }} fs-6">
+
+                        {{ $documentRequest->status }}
+
+                    </span>
 
                 </div>
 
             </div>
+
+            @if($documentRequest->assignedTo)
+
+                <div class="mb-3">
+
+                    <label class="text-muted">
+
+                        Assigned To
+
+                    </label>
+
+                    <div class="fw-semibold">
+
+                        {{ $documentRequest->assignedTo->name }}
+
+                    </div>
+
+                    <small class="text-muted">
+
+                        {{ optional($documentRequest->assigned_at)->format('M d, Y h:i A') }}
+
+                    </small>
+
+                </div>
+
+            @endif
+
+            @switch($documentRequest->status)
+
+                {{-- Incoming --}}
+                @case('Incoming')
+
+                    <form
+                        method="POST"
+                        action="{{ route('requests.assign', $documentRequest) }}">
+
+                        @csrf
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Assign To
+
+                            </label>
+
+                            <select
+                                name="assigned_to"
+                                class="form-select"
+                                required>
+
+                                <option value="">
+
+                                    Select User
+
+                                </option>
+
+                                @foreach($users as $user)
+
+                                    <option value="{{ $user->id }}">
+
+                                        {{ $user->name }}
+
+                                    </option>
+
+                                @endforeach
+
+                            </select>
+
+                        </div>
+
+                        <button
+                            class="btn btn-primary w-100">
+
+                            <i class="bi bi-person-check-fill"></i>
+
+                            Assign Request
+
+                        </button>
+
+                    </form>
+
+                    @break
+
+                {{-- Assigned --}}
+                @case('Assigned')
+
+                    <form
+                        method="POST"
+                        action="{{ route('requests.start', $documentRequest) }}">
+
+                        @csrf
+
+                        <button
+                            class="btn btn-success w-100">
+
+                            <i class="bi bi-play-circle"></i>
+
+                            Start Work
+
+                        </button>
+
+                    </form>
+
+                    @break
+
+                {{-- Ongoing --}}
+                @case('Ongoing')
+
+                    <form
+                        method="POST"
+                        action="{{ route('requests.complete', $documentRequest) }}">
+
+                        @csrf
+
+                        <button
+                            class="btn btn-primary w-100">
+
+                            <i class="bi bi-check-circle"></i>
+
+                            Mark Completed
+
+                        </button>
+
+                    </form>
+
+                    @break
+
+                {{-- Completed --}}
+                @case('Completed')
+
+                    <form
+                        method="POST"
+                        action="{{ route('requests.archive', $documentRequest) }}">
+
+                        @csrf
+
+                        <button
+                            class="btn btn-dark w-100">
+
+                            <i class="bi bi-archive"></i>
+
+                            Archive Request
+
+                        </button>
+
+                    </form>
+
+                    @break
+
+                {{-- Archived --}}
+                @case('Archived')
+
+                    <div class="alert alert-secondary mb-0">
+
+                        This request has already been archived.
+
+                    </div>
+
+                    @break
+
+            @endswitch
+
+        </div>
+
+    </div>
+
+    {{-- ========================================= --}}
+    {{-- Actions --}}
+    {{-- ========================================= --}}
+
+    <div class="card shadow-sm">
+
+        <div class="card-header">
+
+            <strong>
+
+                Actions
+
+            </strong>
+
+        </div>
+
+        <div class="card-body d-grid gap-2">
+
+            <a
+                href="{{ route('requests.index') }}"
+                class="btn btn-secondary">
+
+                <i class="bi bi-arrow-left"></i>
+
+                Back
+
+            </a>
+
+            <a
+    href="{{ route('requests.edit', ['documentRequest' => $documentRequest]) }}"
+    class="btn btn-primary">
+
+    <i class="bi bi-pencil"></i>
+
+    Edit Request
+
+</a>
+
+            <button
+                class="btn btn-outline-dark"
+                disabled>
+
+                <i class="bi bi-printer"></i>
+
+                Print
+
+            </button>
 
         </div>
 
@@ -427,4 +643,5 @@
 
 </div>
 
+    </div>  
 @endsection
