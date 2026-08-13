@@ -8,7 +8,6 @@
     $type = $field->fieldType->key;
 @endphp
 
-
 @switch($type)
 
     @case('text')
@@ -56,14 +55,14 @@
 
         @break
 
-    @case('dropdown')
+    @case('select')
 
-    <x-dynamic.select
-        :field="$field"
-        :name="$name"
-        :value="$value" />
+        <x-dynamic.select
+            :field="$field"
+            :name="$name"
+            :value="$value" />
 
-    @break
+        @break
 
     @case('checkbox')
 

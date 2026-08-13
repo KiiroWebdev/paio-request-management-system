@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentRequest;
-use App\Models\Service;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 use App\Services\RequestWorkflowService;
+use App\Http\Requests\UpdateDocumentRequestRequest;
+use App\Actions\Requests\UpdateRequestAnswers;
 
 class DocumentRequestController extends Controller
 {
@@ -131,17 +135,108 @@ public function create()
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(DocumentRequest $documentRequest)
-    {
-        //
+ public function edit(DocumentRequest $documentRequest)
+{
+    if ($documentRequest->status === 'Archived') {
+        return redirect()
+            ->route('requests.show', $documentRequest)
+            ->with('error', 'Archived requests cannot be edited.');
     }
+
+    $documentRequest->load([
+        'organization',
+        'contact',
+        'services.fields.fieldType',
+        'services.fields.options',
+        'answers.field.fieldType',
+        'answers.field.options',
+    ]);
+
+    $organizations = \App\Models\Organization::where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    $contacts = \App\Models\Contact::where('is_active', true)
+        ->orderBy('last_name')
+        ->get();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Existing Dynamic Answers
+    |--------------------------------------------------------------------------
+    */
+
+    $answers = $documentRequest->answers
+        ->mapWithKeys(function ($answer) {
+
+            $value = $answer->value;
+
+            if ($answer->field?->fieldType?->key === 'checkbox') {
+                $value = json_decode($value, true) ?? [];
+            }
+
+            return [
+                $answer->service_field_id => $value,
+            ];
+        })
+        ->toArray();
+
+    return view(
+        'requests.edit',
+        compact(
+            'documentRequest',
+            'organizations',
+            'contacts',
+            'answers'
+        )
+    );
+}
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, DocumentRequest $documentRequest)
-    {
-        //
+    public function update(
+        UpdateDocumentRequestRequest $request,
+DocumentRequest $documentRequest,
+        UpdateRequestAnswers $updateRequestAnswers
+    ) {
+        if ($documentRequest->status === 'Archived') {
+            return redirect()
+                ->route('requests.show', $documentRequest)
+                ->with('error', 'Archived requests cannot be edited.');
+        }
+
+        $documentRequest->load([
+            'services.fields.fieldType',
+            'answers',
+        ]);
+
+        $data = $request->validated();
+        $fields = $documentRequest->services
+            ->flatMap(fn ($service) => $service->fields->where('active', true));
+
+        DB::transaction(function () use ($documentRequest, $data, $fields, $updateRequestAnswers) {
+            $documentRequest->update([
+                'organization_id' => $data['organization_id'],
+                'contact_id' => $data['contact_id'],
+                'title' => $data['title'],
+                'subject' => $data['subject'],
+                'description' => $data['description'] ?? null,
+                'date_received' => $data['date_received'],
+                'request_type' => $data['request_type'],
+                'priority' => $data['priority'],
+            ]);
+
+            $updateRequestAnswers->execute(
+                $documentRequest,
+                $data['answers'] ?? [],
+                $fields
+            );
+        });
+
+        return redirect()
+            ->route('requests.show', $documentRequest)
+            ->with('success', 'Request updated successfully.');
     }
 
     /**

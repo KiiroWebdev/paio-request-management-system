@@ -14,36 +14,47 @@ class DynamicValidationService
 
             $rule = [];
 
-            $rule[] = $field->required ? 'required' : 'nullable';
+            $rule[] = $field->required
+                ? 'required'
+                : 'nullable';
 
             switch ($field->fieldType->key) {
 
-                case 'Text':
+                case 'text':
                     $rule[] = 'string';
                     break;
 
-                case 'Textarea':
+                case 'textarea':
                     $rule[] = 'string';
                     break;
 
-                case 'Number':
+                case 'number':
                     $rule[] = 'numeric';
                     break;
 
-                case 'Date':
+                case 'date':
                     $rule[] = 'date';
                     break;
 
-                case 'Time':
+                case 'time':
                     $rule[] = 'date_format:H:i';
                     break;
 
-                case 'File':
+                case 'select':
+                    $rule[] = 'string';
+                    break;
+
+                case 'checkbox':
+                    $rule[] = 'array';
+                    break;
+
+                case 'file':
                     $rule[] = 'file';
                     break;
 
                 default:
                     $rule[] = 'string';
+                    break;
             }
 
             $rules[$field->field_name] = implode('|', $rule);
