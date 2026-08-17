@@ -361,245 +361,222 @@
 
                 </thead>
 
-                <tbody>
+              <tbody>
 
-                @forelse($requests as $request)
+@foreach($requests as $request)
 
-                    <tr>
+    <tr>
 
-                        <td>
+        {{-- Control Number --}}
+        <td>
 
-    <div class="fw-bold">
+            <strong>
+                {{ $request->control_no }}
+            </strong>
 
-        {{ $request->control_no }}
+        </td>
 
-    </div>
+        {{-- Date Received --}}
+        <td>
 
-    <small class="text-muted">
+            @if($request->date_received)
 
-        #{{ $request->id }}
+                {{ \Carbon\Carbon::parse($request->date_received)->format('M d, Y') }}
 
-    </small>
+            @else
 
-</td>
+                <span class="text-muted">
+                    -
+                </span>
 
-                        <td>
+            @endif
 
-                            {{ optional($request->date_received)->format('M d, Y') }}
+        </td>
 
-                        </td>
+        {{-- Organization --}}
+        <td>
 
-                        <td>
+            @if($request->organization)
 
-    @if($request->organization)
+                {{ $request->organization->name }}
 
-        <div class="fw-semibold">
+            @else
 
-            {{ $request->organization->name }}
+                <span class="text-muted">
+                    -
+                </span>
 
-        </div>
+            @endif
 
-    @else
+        </td>
 
-        <span class="text-muted">
+        {{-- Requestor --}}
+        <td>
 
-            Walk-in / Internal
+            @if($request->contact)
 
-        </span>
+                <div>
+                    {{ $request->contact->full_name }}
+                </div>
 
-    @endif
+                @if(!empty($request->contact->email))
 
-</td>
+                    <small class="text-muted">
+                        {{ $request->contact->email }}
+                    </small>
 
-                        <td>
+                @endif
 
-    @if($request->contact)
+            @else
 
-        <div>
+                <span class="text-muted">
+                    -
+                </span>
 
-            {{ $request->contact->full_name }}
+            @endif
 
-        </div>
+        </td>
 
-        @if(!empty($request->contact->email))
+        {{-- Service --}}
+        <td>
 
-            <small class="text-muted">
+            @if($request->services->count())
 
-                {{ $request->contact->email }}
+                @foreach($request->services as $service)
 
-            </small>
+                    <span class="badge bg-primary me-1 mb-1">
 
-        @endif
+                        <i class="bi bi-tag-fill me-1"></i>
 
-    @else
+                        {{ $service->name }}
 
-        <span class="text-muted">
+                    </span>
 
-            -
+                @endforeach
 
-        </span>
+            @else
 
-    @endif
+                <span class="text-muted">
+                    -
+                </span>
 
-</td>
+            @endif
 
-                        <td>
+        </td>
 
-    @forelse($request->services as $service)
+        {{-- Priority --}}
+        <td>
 
-        <span class="badge bg-primary me-1 mb-1">
+            @php
 
-            <i class="bi bi-tag-fill me-1"></i>
+                $priorityClass = match($request->priority) {
 
-            {{ $service->name }}
+                    'Low' => 'bg-success',
 
-        </span>
+                    'Normal' => 'bg-primary',
 
-    @empty
+                    'High' => 'bg-warning text-dark',
 
-        <span class="text-muted">
+                    'Urgent' => 'bg-danger',
 
-            -
+                    default => 'bg-secondary',
 
-        </span>
+                };
 
-    @endforelse
+            @endphp
 
-</td>
+            <span class="badge {{ $priorityClass }}">
 
-                        {{-- Priority --}}
-                        <td>
+                {{ $request->priority }}
 
-                            @php
+            </span>
 
-                                $priorityClass = match($request->priority){
+        </td>
 
-                                    'Low' => 'bg-success',
+        {{-- Status --}}
+        <td>
 
-                                    'Normal' => 'bg-primary',
+            @php
 
-                                    'High' => 'bg-warning text-dark',
+                $statusClass = match($request->status) {
 
-                                    'Urgent' => 'bg-danger',
+                    'Incoming' => 'bg-warning text-dark',
 
-                                    default => 'bg-secondary',
+                    'Assigned' => 'bg-info',
 
-                                };
+                    'Ongoing' => 'bg-primary',
 
-                            @endphp
+                    'Completed' => 'bg-success',
 
-                            <span class="badge {{ $priorityClass }}">
+                    'Archived' => 'bg-secondary',
 
-                                {{ $request->priority }}
+                    default => 'bg-dark',
 
-                            </span>
+                };
 
-                        </td>
+            @endphp
 
-                        {{-- Status --}}
-                        <td>
+            <span class="badge {{ $statusClass }}">
 
-                            @php
+                {{ $request->status }}
 
-                                $statusClass = match($request->status){
+            </span>
 
-                                    'Incoming' => 'bg-warning text-dark',
+        </td>
 
-                                    'Assigned' => 'bg-info',
+        {{-- Due Date --}}
+        <td>
 
-                                    'Ongoing' => 'bg-primary',
+            @if($request->due_date)
 
-                                    'Completed' => 'bg-success',
+                <div>
+                    {{ \Carbon\Carbon::parse($request->due_date)->format('M d, Y') }}
+                </div>
 
-                                    'Archived' => 'bg-secondary',
+                <small class="text-muted">
 
-                                    default => 'bg-dark',
+                    {{ \Carbon\Carbon::parse($request->due_date)->diffForHumans() }}
 
-                                };
+                </small>
 
-                            @endphp
+            @else
 
-                            <span class="badge {{ $statusClass }}">
+                <span class="text-muted">
+                    -
+                </span>
 
-                                {{ $request->status }}
+            @endif
 
-                            </span>
+        </td>
 
-                        </td>
+        {{-- Actions --}}
+        <td class="text-center">
 
-                        {{-- Due Date --}}
-<td>
+            <a
+                href="{{ route('requests.show', $request) }}"
+                class="btn btn-sm btn-outline-primary"
+                title="View">
 
-    @if($request->due_date)
+                <i class="bi bi-eye"></i>
 
-        <div>
+            </a>
 
-            {{ $request->due_date->format('M d, Y') }}
+            <a
+                href="{{ route('requests.edit', $request) }}"
+                class="btn btn-sm btn-outline-success"
+                title="Edit">
 
-        </div>
+                <i class="bi bi-pencil"></i>
 
-        <small class="text-muted">
+            </a>
 
-            {{ $request->due_date->diffForHumans() }}
+        </td>
 
-        </small>
+    </tr>
 
-    @else
+@endforeach
 
-        <span class="text-muted">
-
-            -
-
-        </span>
-
-    @endif
-
-</td>
-
-<td class="text-center">
-
-    <a href="{{ route('requests.show', $request) }}"
-       class="btn btn-sm btn-outline-primary"
-       title="View">
-
-        <i class="bi bi-eye"></i>
-
-    </a>
-
-    <a href="{{ route('requests.edit', $request) }}"
-       class="btn btn-sm btn-outline-success"
-       title="Edit">
-
-        <i class="bi bi-pencil"></i>
-
-    </a>
-
-</td>
-
-                    </tr>
-
-                @empty
-
-                    <tr>
-
-                        <td colspan="9">
-
-                            <x-admin.empty-state
-                                colspan="9"
-                                icon="bi-inbox"
-                                title="No Requests Found"
-                                message="Click the button below to create the first request."
-                                buttonText="New Request"
-                                :buttonRoute="route('request-wizard.services')" />
-
-                        </td>
-
-                    </tr>
-
-                @endforelse
-
-                </tbody>
-
+</tbody>
             </table>
 
         </div>

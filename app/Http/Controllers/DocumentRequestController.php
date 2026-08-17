@@ -418,4 +418,16 @@ public function update(
     );
 }
 
+public function restore(
+    DocumentRequest $documentRequest
+)
+{
+    $this->workflowService->restore($documentRequest);
+
+    return back()->with(
+        'success',
+        'Request restored successfully.'
+    );
+}
+
 }

@@ -58,4 +58,17 @@ class RequestWorkflowService
 
         ]);
     }
+
+    public function restore(
+    DocumentRequest $request
+): void
+{
+    $request->update([
+
+        'status' => 'Incoming',
+
+        'archived_at' => null,
+
+    ]);
+}
 }

@@ -66,6 +66,10 @@ Route::get(
     [DocumentRequestController::class, 'archiveIndex']
 )->name('requests.archive.index');
 
+Route::post(
+    '/requests/{documentRequest}/restore',
+    [DocumentRequestController::class, 'restore']
+)->name('requests.restore');
 
 Route::resource('requests', DocumentRequestController::class)
     ->parameters([

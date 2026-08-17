@@ -60,21 +60,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         language: {
 
-            search: "Search:",
+    search: "Search:",
 
-            lengthMenu: "Show _MENU_ entries",
+    lengthMenu: "Show _MENU_ entries",
 
-            info: "Showing _START_ to _END_ of _TOTAL_ requests",
+    info: "Showing _START_ to _END_ of _TOTAL_ requests",
 
-            paginate: {
+    emptyTable: "No requests found",
 
-                previous: "Previous",
+    zeroRecords: "No matching requests found",
 
-                next: "Next"
+    paginate: {
 
-            }
+        previous: "Previous",
 
-        }
+        next: "Next"
+
+    }
+
+}
 
     });
 

@@ -590,15 +590,34 @@
                     @break
 
                 {{-- Archived --}}
-                @case('Archived')
+@case('Archived')
 
-                    <div class="alert alert-secondary mb-0">
+    <div class="alert alert-secondary mb-3">
 
-                        This request has already been archived.
+        This request is currently archived.
 
-                    </div>
+    </div>
 
-                    @break
+    <form
+        method="POST"
+        action="{{ route('requests.restore', $documentRequest) }}">
+
+        @csrf
+
+        <button
+            type="submit"
+            class="btn btn-success w-100"
+            onclick="return confirm('Restore this request and move it back to Incoming?');">
+
+            <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+            Restore Request
+
+        </button>
+
+    </form>
+
+    @break
 
             @endswitch
 
