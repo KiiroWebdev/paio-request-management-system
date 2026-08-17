@@ -52,6 +52,11 @@ Route::resource('requests', DocumentRequestController::class)
         'requests' => 'documentRequest',
     ]);
 
+Route::get(
+    '/requests/{documentRequest}/print',
+    [DocumentRequestController::class, 'print']
+)->name('requests.print');
+
 Route::post(
     '/requests/{documentRequest}/assign',
     [DocumentRequestController::class, 'assign']

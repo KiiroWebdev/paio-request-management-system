@@ -644,16 +644,16 @@
 
 </a>
 
-            <button
-                class="btn btn-outline-dark"
-                disabled>
+            <a
+    href="{{ route('requests.print', $documentRequest) }}"
+    class="btn btn-outline-dark"
+    target="_blank">
 
-                <i class="bi bi-printer"></i>
+    <i class="bi bi-printer"></i>
 
-                Print
+    Print
 
-            </button>
-
+</a>
         </div>
 
     </div>

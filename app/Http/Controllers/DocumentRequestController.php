@@ -132,6 +132,23 @@ public function create()
     );
 }
 
+public function print(DocumentRequest $documentRequest)
+{
+    $documentRequest->load([
+        'organization',
+        'contact',
+        'services.fields.fieldType',
+        'services.fields.options',
+        'assignedTo',
+        'answers.field.fieldType',
+        'answers.field.options',
+    ]);
+
+    return view(
+        'requests.print',
+        compact('documentRequest')
+    );
+}
     /**
      * Show the form for editing the specified resource.
      */
