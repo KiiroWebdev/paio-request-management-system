@@ -75,10 +75,10 @@
                 <span>Completed</span>
             </a>
 
-            <a href="#">
-                <i class="bi bi-archive"></i>
-                <span>Archive</span>
-            </a>
+            <a href="{{ route('requests.archive.index') }}">
+    <i class="bi bi-archive"></i>
+    <span>Archive</span>
+</a>
 
         </div>
 

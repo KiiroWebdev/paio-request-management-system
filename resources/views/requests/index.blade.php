@@ -1,6 +1,6 @@
 @extends('layouts.master')
 
-@section('page-title', 'Incoming Requests')
+@section('page-title', $pageTitle ?? 'Request Management')
 
 @section('content')
 
@@ -8,8 +8,8 @@
 
     {{-- Page Header --}}
     <x-admin.page-header
-        title="Incoming Requests"
-        subtitle="Manage all document requests">
+    :title="$pageTitle ?? 'Request Management'"
+    subtitle="Manage document requests">
 
         <a href="{{ route('request-wizard.services') }}"
            class="btn btn-primary">
@@ -23,7 +23,7 @@
     </x-admin.page-header>
 
     <x-admin.breadcrumb
-        :items="['Request Management', 'Incoming Requests']"/>
+    :items="['Request Management', $pageTitle ?? 'Request Management']"/>
 
     {{-- Success Message --}}
     @if(session('success'))

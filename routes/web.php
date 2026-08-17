@@ -46,12 +46,32 @@ Route::middleware('auth')->group(function () {
 | Request Management
 |--------------------------------------------------------------------------
 */
+Route::get(
+    '/requests/incoming',
+    [DocumentRequestController::class, 'incoming']
+)->name('requests.incoming');
+
+Route::get(
+    '/requests/ongoing',
+    [DocumentRequestController::class, 'ongoing']
+)->name('requests.ongoing');
+
+Route::get(
+    '/requests/completed',
+    [DocumentRequestController::class, 'completed']
+)->name('requests.completed');
+
+Route::get(
+    '/requests/archive',
+    [DocumentRequestController::class, 'archiveIndex']
+)->name('requests.archive.index');
+
 
 Route::resource('requests', DocumentRequestController::class)
     ->parameters([
         'requests' => 'documentRequest',
     ]);
-
+    
 Route::get(
     '/requests/{documentRequest}/print',
     [DocumentRequestController::class, 'print']

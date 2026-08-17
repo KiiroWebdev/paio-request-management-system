@@ -43,6 +43,8 @@ class DocumentRequestController extends Controller
 
     }
 
+    
+
     // Organization Filter
     if ($request->filled('organization')) {
 
@@ -80,16 +82,62 @@ class DocumentRequestController extends Controller
         ->paginate(15)
         ->withQueryString();
 
-    return view('requests.index', [
+    $pageTitle = match ($request->status) {
+    'Incoming' => 'Incoming Requests',
+    'Ongoing' => 'Ongoing Requests',
+    'Completed' => 'Completed Requests',
+    'Archived' => 'Archived Requests',
+    default => 'Request Management',
+};
 
-        'requests' => $requests,
+return view('requests.index', [
 
-        'organizations' => \App\Models\Organization::orderBy('name')->get(),
+    'requests' => $requests,
 
-        'services' => \App\Models\Service::orderBy('name')->get(),
+    'organizations' => \App\Models\Organization::orderBy('name')->get(),
 
-    ]);
+    'services' => \App\Models\Service::orderBy('name')->get(),
+
+    'pageTitle' => $pageTitle,
+
+]);
 }
+public function incoming(Request $request)
+{
+    $request->merge([
+        'status' => 'Incoming',
+    ]);
+
+    return $this->index($request);
+}
+
+public function ongoing(Request $request)
+{
+    $request->merge([
+        'status' => 'Ongoing',
+    ]);
+
+    return $this->index($request);
+}
+
+public function completed(Request $request)
+{
+    $request->merge([
+        'status' => 'Completed',
+    ]);
+
+    return $this->index($request);
+}
+
+public function archiveIndex(Request $request)
+{
+    $request->merge([
+        'status' => 'Archived',
+    ]);
+
+    return $this->index($request);
+}
+
     /**
  * Show the form for creating a new resource.
  */
@@ -154,11 +202,25 @@ public function print(DocumentRequest $documentRequest)
      */
  public function edit(DocumentRequest $documentRequest)
 {
-    if ($documentRequest->status === 'Archived') {
-        return redirect()
-            ->route('requests.show', $documentRequest)
-            ->with('error', 'Archived requests cannot be edited.');
-    }
+    
+    $documentRequest->load([
+        'organization',
+        'contact',
+        'services.fields.fieldType',
+        'services.fields.options',
+        'answers.field.fieldType',
+        'answers.field.options',
+    ]);
+
+    $organizations = \App\Models\Organization::where('is_active', true)
+        ->orderBy('name')
+        ->get();
+
+    $contacts = \App\Models\Contact::where('is_active', true)
+        ->orderBy('last_name')
+        ->get();
+
+    // ...
 
     $documentRequest->load([
         'organization',
@@ -210,50 +272,69 @@ public function print(DocumentRequest $documentRequest)
 }
 
     /**
-     * Update the specified resource in storage.
-     */
-    public function update(
-        UpdateDocumentRequestRequest $request,
-DocumentRequest $documentRequest,
-        UpdateRequestAnswers $updateRequestAnswers
-    ) {
-        if ($documentRequest->status === 'Archived') {
-            return redirect()
-                ->route('requests.show', $documentRequest)
-                ->with('error', 'Archived requests cannot be edited.');
-        }
+    
 
-        $documentRequest->load([
-            'services.fields.fieldType',
-            'answers',
+ * Update the specified resource in storage.
+ */
+public function update(
+    UpdateDocumentRequestRequest $request,
+    DocumentRequest $documentRequest,
+    UpdateRequestAnswers $updateRequestAnswers
+) {
+    $documentRequest->load([
+        'services.fields.fieldType',
+        'answers',
+    ]);
+
+    $data = $request->validated();
+
+    $fields = $documentRequest->services
+        ->flatMap(
+            fn ($service) =>
+                $service->fields->where('active', true)
+        );
+
+    DB::transaction(function () use (
+        $documentRequest,
+        $data,
+        $fields,
+        $updateRequestAnswers
+    ) {
+
+        $documentRequest->update([
+
+            'organization_id' => $data['organization_id'],
+
+            'contact_id' => $data['contact_id'],
+
+            'title' => $data['title'],
+
+            'subject' => $data['subject'],
+
+            'description' => $data['description'] ?? null,
+
+            'date_received' => $data['date_received'],
+
+            'request_type' => $data['request_type'],
+
+            'priority' => $data['priority'],
+
         ]);
 
-        $data = $request->validated();
-        $fields = $documentRequest->services
-            ->flatMap(fn ($service) => $service->fields->where('active', true));
+        $updateRequestAnswers->execute(
+            $documentRequest,
+            $data['answers'] ?? [],
+            $fields
+        );
 
-        DB::transaction(function () use ($documentRequest, $data, $fields, $updateRequestAnswers) {
-            $documentRequest->update([
-                'organization_id' => $data['organization_id'],
-                'contact_id' => $data['contact_id'],
-                'title' => $data['title'],
-                'subject' => $data['subject'],
-                'description' => $data['description'] ?? null,
-                'date_received' => $data['date_received'],
-                'request_type' => $data['request_type'],
-                'priority' => $data['priority'],
-            ]);
+    });
 
-            $updateRequestAnswers->execute(
-                $documentRequest,
-                $data['answers'] ?? [],
-                $fields
-            );
-        });
-
-        return redirect()
-            ->route('requests.show', $documentRequest)
-            ->with('success', 'Request updated successfully.');
+    return redirect()
+        ->route('requests.show', $documentRequest)
+        ->with(
+            'success',
+            'Request updated successfully.'
+        );
     }
 
     /**
