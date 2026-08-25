@@ -90,7 +90,7 @@
                             type="text"
                             name="search"
                             class="form-control"
-                            placeholder="Control No. or Subject..."
+                            placeholder="Control No., title, subject, or requestor..."
                             value="{{ request('search') }}">
 
                     </div>
@@ -239,7 +239,35 @@
                     </select>
 
                 </div>
+{{-- Date Received From --}}
+<div class="col-lg-2">
 
+    <label class="form-label fw-semibold">
+        Date From
+    </label>
+
+    <input
+        type="date"
+        name="date_from"
+        class="form-control"
+        value="{{ request('date_from') }}">
+
+</div>
+
+{{-- Date Received To --}}
+<div class="col-lg-2">
+
+    <label class="form-label fw-semibold">
+        Date To
+    </label>
+
+    <input
+        type="date"
+        name="date_to"
+        class="form-control"
+        value="{{ request('date_to') }}">
+
+</div>
             </div>
 
             <hr>
@@ -256,15 +284,29 @@
 
                 </a>
 
-                <button
-                    type="submit"
-                    class="btn btn-primary">
+                <div class="d-flex gap-2">
 
-                    <i class="bi bi-search"></i>
+    <button
+        type="submit"
+        class="btn btn-primary">
 
-                    Search
+        <i class="bi bi-search me-1"></i>
 
-                </button>
+        Search
+
+    </button>
+
+    <a
+        href="{{ url()->current() }}"
+        class="btn btn-outline-secondary">
+
+        <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+        Reset
+
+    </a>
+
+</div>
 
             </div>
 
@@ -322,6 +364,24 @@
     <x-admin.search-bar
         placeholder="Search requests..." />
 
+        <div class="d-flex justify-content-between align-items-center mb-3">
+
+    <div class="text-muted small">
+
+        Showing
+        <strong>{{ $requests->firstItem() ?? 0 }}</strong>
+        –
+        <strong>{{ $requests->lastItem() ?? 0 }}</strong>
+
+        of
+
+        <strong>{{ $requests->total() }}</strong>
+
+        requests
+
+    </div>
+
+</div>
     {{-- Table --}}
     <x-admin.table-card>
 

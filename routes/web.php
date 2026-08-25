@@ -10,6 +10,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\ServiceFieldController;
 use App\Http\Controllers\RequestWizardController;
 use App\Http\Controllers\ServiceFieldOptionController;
+use App\Http\Controllers\AttachmentController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -100,6 +101,31 @@ Route::post(
     '/requests/{documentRequest}/archive',
     [DocumentRequestController::class, 'archive']
 )->name('requests.archive');
+
+Route::post(
+    '/requests/{documentRequest}/attachments',
+    [AttachmentController::class, 'store']
+)->name('requests.attachments.store');
+
+Route::post(
+    '/requests/{documentRequest}/attachments',
+    [AttachmentController::class, 'store']
+)->name('requests.attachments.store');
+
+Route::get(
+    '/attachments/{attachment}',
+    [AttachmentController::class, 'show']
+)->name('attachments.show');
+
+Route::get(
+    '/attachments/{attachment}/download',
+    [AttachmentController::class, 'download']
+)->name('attachments.download');
+
+Route::delete(
+    '/attachments/{attachment}',
+    [AttachmentController::class, 'destroy']
+)->name('attachments.destroy');
     /*
     |--------------------------------------------------------------------------
     | Request Wizard

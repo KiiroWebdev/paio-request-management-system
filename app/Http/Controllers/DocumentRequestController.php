@@ -32,16 +32,29 @@ class DocumentRequestController extends Controller
     ]);
 
     // Search
-    if ($request->filled('search')) {
+if ($request->filled('search')) {
 
-        $query->where(function ($q) use ($request) {
+    $search = $request->search;
 
-            $q->where('control_no', 'like', '%' . $request->search . '%')
-              ->orWhere('subject', 'like', '%' . $request->search . '%');
+    $query->where(function ($q) use ($search) {
 
-        });
+        $q->where('control_no', 'like', '%' . $search . '%')
+            ->orWhere('title', 'like', '%' . $search . '%')
+            ->orWhere('subject', 'like', '%' . $search . '%')
+            ->orWhereHas('contact', function ($contactQuery) use ($search) {
 
-    }
+                $contactQuery->where('full_name', 'like', '%' . $search . '%');
+
+            })
+            ->orWhereHas('organization', function ($organizationQuery) use ($search) {
+
+                $organizationQuery->where('name', 'like', '%' . $search . '%');
+
+            });
+
+    });
+
+}
 
     
 
@@ -65,6 +78,67 @@ class DocumentRequestController extends Controller
         $query->where('priority', $request->priority);
 
     }
+
+    // High / Urgent Filter
+if ($request->boolean('high_priority')) {
+
+    $query->whereIn('priority', [
+        'High',
+        'Urgent',
+    ]);
+
+}
+
+// Unassigned Filter
+if ($request->boolean('unassigned')) {
+
+    $query->whereNull('assigned_to');
+
+}
+
+// Due Today Filter
+if ($request->boolean('due_today')) {
+
+    $query->whereDate('due_date', today())
+          ->whereNotIn('status', [
+              'Completed',
+              'Archived',
+          ]);
+
+}
+
+// Overdue Filter
+if ($request->boolean('overdue')) {
+
+    $query->whereDate('due_date', '<', today())
+          ->whereNotIn('status', [
+              'Completed',
+              'Archived',
+          ]);
+
+}
+
+    // Date Received - From
+if ($request->filled('date_from')) {
+
+    $query->whereDate(
+        'date_received',
+        '>=',
+        $request->date_from
+    );
+
+}
+
+// Date Received - To
+if ($request->filled('date_to')) {
+
+    $query->whereDate(
+        'date_received',
+        '<=',
+        $request->date_to
+    );
+
+}
 
     // Service Filter
     if ($request->filled('service')) {
@@ -183,14 +257,14 @@ public function create()
 public function print(DocumentRequest $documentRequest)
 {
     $documentRequest->load([
-        'organization',
-        'contact',
-        'services.fields.fieldType',
-        'services.fields.options',
-        'assignedTo',
-        'answers.field.fieldType',
-        'answers.field.options',
-    ]);
+    'organization',
+    'contact',
+    'services',
+    'assignedTo',
+    'answers.field.fieldType',
+    'answers.field.options',
+    'activityLogs.user',
+]);
 
     return view(
         'requests.print',

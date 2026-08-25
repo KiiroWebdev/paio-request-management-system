@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -80,7 +81,7 @@ class DocumentRequest extends Model
     public function assignedTo(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
-    }    
+    }
 
     public function organization(): BelongsTo
     {
@@ -106,4 +107,21 @@ class DocumentRequest extends Model
     {
         return $this->hasMany(RequestAnswer::class, 'request_id');
     }
+
+
+
+    public function activityLogs(): HasMany
+{
+    return $this->hasMany(
+        ActivityLog::class,
+        'request_id'
+    )->latest();
+}
+ public function attachments(): HasMany
+{
+    return $this->hasMany(
+        Attachment::class,
+        'request_id'
+    )->latest();
+}
 }

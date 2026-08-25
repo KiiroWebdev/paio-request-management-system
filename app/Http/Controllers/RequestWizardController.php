@@ -57,9 +57,11 @@ class RequestWizardController extends Controller
     /**
      * Store a request.
      */
-    public function store(
-    StoreRequestWizardRequest $request,
-    ControlNumberService $controlNumberService
+   public function store(
+    StoreRequestRequest $request,
+    Service $service,
+    ControlNumberService $controlNumberService,
+    RequestSubmissionService $submissionService
 ) {
         
 
