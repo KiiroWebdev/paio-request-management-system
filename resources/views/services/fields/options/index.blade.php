@@ -1,26 +1,51 @@
 @extends('layouts.master')
-@section('page-title', 'Services')
+
+@section('page-title', 'Field Options')
+
 @section('content')
 
 <div class="container-fluid">
 
     {{-- Page Header --}}
     <x-admin.page-header
-        title="Service Management"
-        subtitle="Manage all PAIO services">
+        :title="'Options - '.ucwords($field->label)"
+        :subtitle="'Manage the available options for '.$service->name">
 
-        <a href="{{ route('services.create') }}"
-           class="btn btn-primary">
+        <div class="d-flex gap-2">
 
-            <i class="bi bi-plus-circle"></i>
+            <a href="{{ route('services.fields.index', $service) }}"
+               class="btn btn-secondary">
 
-            New Service
+                <i class="bi bi-arrow-left"></i>
+                Back to Fields
 
-        </a>
+            </a>
+
+            <a href="{{ route('services.fields.options.create', [$service, $field]) }}"
+               class="btn btn-primary">
+
+                <i class="bi bi-plus-circle"></i>
+                New Option
+
+            </a>
+
+        </div>
 
     </x-admin.page-header>
+
+
+    {{-- Breadcrumb --}}
     <x-admin.breadcrumb
-        :items="['Master Data', 'Services']"/>
+        :items="[
+            'Master Data',
+            'Services',
+            $service->name,
+            'Fields',
+            ucwords($field->label),
+            'Options'
+        ]"
+    />
+
 
     {{-- Success Message --}}
     @if(session('success'))
@@ -41,164 +66,300 @@
 
     @endif
 
-    {{-- Statistics --}}
-    <div class="row mb-4">
 
-        <div class="col-lg-4 mb-3">
+    {{-- Error Message --}}
+    @if(session('error'))
 
-            <x-admin.stat-card
-                title="Total Services"
-                :value="$totalServices"
-                icon="bi-grid-3x3-gap-fill"
-                color="primary"/>
+        <div class="alert alert-danger alert-dismissible fade show mb-4">
 
-        </div>
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
 
-        <div class="col-lg-4 mb-3">
+            {{ session('error') }}
 
-            <x-admin.stat-card
-                title="Active Services"
-                :value="$activeServices"
-                icon="bi-check-circle-fill"
-                color="success"/>
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert">
+            </button>
 
         </div>
 
-        <div class="col-lg-4 mb-3">
+    @endif
 
-            <x-admin.stat-card
-                title="Inactive Services"
-                :value="$inactiveServices"
-                icon="bi-pause-circle-fill"
-                color="secondary"/>
+
+    {{-- Field Information --}}
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row align-items-center">
+
+                <div class="col-md-8">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <div
+                            class="bg-primary text-white rounded p-3">
+
+                            <i class="bi bi-list-check fs-4"></i>
+
+                        </div>
+
+                        <div>
+
+                            <h5 class="mb-1 fw-bold">
+
+                                {{ ucwords($field->label) }}
+
+                            </h5>
+
+                            <div class="text-muted">
+
+                                Field name:
+                                <code>{{ $field->field_name }}</code>
+
+                            </div>
+
+                            <div class="text-muted">
+
+                                Type:
+                                <strong>
+                                    {{ $field->fieldType->name }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+
+                    <span class="badge bg-primary fs-6 px-3 py-2">
+
+                        {{ $field->options->count() }}
+
+                        {{ $field->options->count() === 1 ? 'Option' : 'Options' }}
+
+                    </span>
+
+                </div>
+
+            </div>
 
         </div>
 
     </div>
 
-    {{-- Search --}}
-    <x-admin.search-bar
-    placeholder="Search services..." />
 
-    {{-- Services Table --}}
-    <x-admin.table-card>
+    {{-- Options Table --}}
+    <div class="card shadow-sm">
 
-        <table class="table table-hover align-middle">
+        <div class="card-header bg-white">
 
-            <thead class="table-light">
+            <div class="d-flex justify-content-between align-items-center">
 
-                <tr>
+                <strong>
 
-                    <th width="80">Order</th>
+                    <i class="bi bi-list-ul me-2"></i>
 
-                    <th>Service</th>
+                    Available Options
 
-                    <th>Description</th>
+                </strong>
 
-                    <th width="120">Status</th>
+                <span class="text-muted small">
 
-                    <th width="170" class="text-center">
+                    Options are displayed in this order
 
-                        Actions
+                </span>
 
-                    </th>
+            </div>
 
-                </tr>
-
-            </thead>
-
-            <tbody>
-
-            @forelse($services as $service)
-
-                <tr>
-
-                    <td>
-
-                        {{ $service->sort_order }}
-
-                    </td>
-
-                    <td>
-
-                        <strong>
-
-                            {{ $service->name }}
-
-                        </strong>
-
-                    </td>
-
-                    <td>
-
-                        {{ $service->description }}
-
-                    </td>
-
-                    <td>
-
-                        <x-admin.status-badge
-                            :active="$service->is_active"/>
-
-                    </td>
-
-                    <td class="text-center">
-
-    <div class="d-flex justify-content-center align-items-center gap-2">
-
-        <a href="{{ route('services.fields.index', $service) }}"
-           class="btn btn-sm btn-outline-primary"
-           title="Manage Fields">
-
-            <i class="bi bi-ui-checks-grid"></i>
-
-        </a>
-
-        <x-admin.action-buttons
-            :edit="route('services.edit', $service)"
-            :delete="route('services.destroy', $service)"
-            :modalId="'deleteService'.$service->id">
-
-            Are you sure you want to delete
-
-            <strong>{{ $service->name }}</strong>?
-
-            <br><br>
-
-            This action cannot be undone.
-
-        </x-admin.action-buttons>
-
-    </div>
-
-</td>
-
-                </tr>
-
-            @empty
-
-              
-<x-admin.empty-state
-    colspan="5"
-    icon="bi-grid"
-    title="No Services Found"
-    message="Click the button below to create your first service."
-    buttonText="New Service"
-    :buttonRoute="route('services.create')" />
+        </div>
 
 
-            @endforelse
+        <div class="card-body">
 
-            </tbody>
+            <div class="table-responsive">
 
-        </table>
+                <table class="table table-hover align-middle mb-0">
 
-    </x-admin.table-card>
+                    <thead class="table-light">
 
-    {{-- Pagination --}}
-    <div class="mt-3">
+                        <tr>
 
-        {{ $services->links() }}
+                            <th width="80">
+                                Order
+                            </th>
+
+                            <th>
+                                Label
+                            </th>
+
+                            <th>
+                                Value
+                            </th>
+
+                            <th width="120">
+                                Status
+                            </th>
+
+                            <th width="160" class="text-center">
+                                Actions
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                    @forelse($field->options->sortBy('display_order') as $option)
+
+                        <tr>
+
+                            {{-- Order --}}
+                            <td>
+
+                                <span class="badge bg-light text-dark border">
+
+                                    {{ $option->display_order }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- Label --}}
+                            <td>
+
+                                <strong>
+
+                                    {{ $option->label }}
+
+                                </strong>
+
+                            </td>
+
+
+                            {{-- Value --}}
+                            <td>
+
+                                <code>
+
+                                    {{ $option->value }}
+
+                                </code>
+
+                            </td>
+
+
+                            {{-- Status --}}
+                            <td>
+
+                                @if($option->active)
+
+                                    <span class="badge bg-success">
+
+                                        <i class="bi bi-check-circle me-1"></i>
+                                        Active
+
+                                    </span>
+
+                                @else
+
+                                    <span class="badge bg-secondary">
+
+                                        <i class="bi bi-pause-circle me-1"></i>
+                                        Inactive
+
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- Actions --}}
+                            <td>
+
+                                <div class="d-flex justify-content-center gap-2">
+
+                                    <a
+                                        href="{{ route(
+                                            'services.fields.options.edit',
+                                            [$service, $field, $option]
+                                        ) }}"
+                                        class="btn btn-sm btn-outline-success"
+                                        title="Edit Option">
+
+                                        <i class="bi bi-pencil"></i>
+
+                                    </a>
+
+
+                                    <form
+                                        action="{{ route(
+                                            'services.fields.options.destroy',
+                                            [$service, $field, $option]
+                                        ) }}"
+                                        method="POST"
+                                        onsubmit="return confirm('Delete this option?');">
+
+                                        @csrf
+
+                                        @method('DELETE')
+
+                                        <button
+                                            type="submit"
+                                            class="btn btn-sm btn-outline-danger"
+                                            title="Delete Option">
+
+                                            <i class="bi bi-trash"></i>
+
+                                        </button>
+
+                                    </form>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="5">
+
+                                <x-admin.empty-state
+                                    icon="bi-list-check"
+                                    title="No Options Yet"
+                                    message="Create the first option for this field."
+                                    buttonText="New Option"
+                                    :buttonRoute="route(
+                                        'services.fields.options.create',
+                                        [$service, $field]
+                                    )"
+                                />
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
 
     </div>
 

@@ -5,17 +5,19 @@ namespace App\Services;
 use App\Actions\Requests\AttachServices;
 use App\Actions\Requests\CreateRequest;
 use App\Actions\Requests\SaveRequestAnswers;
+use App\Actions\Requests\SaveRequestAttachments;
 use App\Models\DocumentRequest;
 use Illuminate\Support\Facades\DB;
 
 class RequestSubmissionService
 {
     public function __construct(
-        protected CreateRequest $createRequest,
-        protected AttachServices $attachServices,
-        protected SaveRequestAnswers $saveRequestAnswers,
-    ) {
-    }
+    protected CreateRequest $createRequest,
+    protected AttachServices $attachServices,
+    protected SaveRequestAnswers $saveRequestAnswers,
+    protected SaveRequestAttachments $saveRequestAttachments,
+) {
+}
 
     public function submit(array $data): DocumentRequest
     {
@@ -58,6 +60,13 @@ class RequestSubmissionService
                 );
 
             }
+
+            if (!empty($data['attachments'])) {
+    $this->saveRequestAttachments->execute(
+        $request,
+        $data['attachments']
+    );
+}
 
             return $request->load([
                 'organization',

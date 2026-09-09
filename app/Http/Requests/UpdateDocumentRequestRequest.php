@@ -51,16 +51,35 @@ class UpdateDocumentRequestRequest extends FormRequest
                 ];
 
                 $rules[$key] = match ($field->fieldType->key) {
-                    'text' => [...$rules[$key], 'string', 'max:255'],
-                    'textarea' => [...$rules[$key], 'string'],
-                    'number' => [...$rules[$key], 'numeric'],
-                    'date' => [...$rules[$key], 'date'],
-                    'time' => [...$rules[$key], 'date_format:H:i'],
-                    'select' => [...$rules[$key], 'string'],
-                    'checkbox' => [...$rules[$key], 'array'],
-                    'file' => [...$rules[$key], 'file'],
-                    default => [...$rules[$key], 'string'],
-                };
+    'text' => [...$rules[$key], 'string', 'max:255'],
+    'textarea' => [...$rules[$key], 'string'],
+    'number' => [...$rules[$key], 'numeric'],
+    'date' => [...$rules[$key], 'date'],
+    'time' => [...$rules[$key], 'date_format:H:i'],
+    'select' => [...$rules[$key], 'string'],
+    'checkbox' => [...$rules[$key], 'array'],
+    'file' => [...$rules[$key], 'file'],
+    'schedule' => [...$rules[$key], 'array', 'min:1'],
+    default => [...$rules[$key], 'string'],
+};
+
+if ($field->fieldType->key === 'schedule') {
+
+    $rules["{$key}.*.date"] = [
+        'required',
+        'date',
+    ];
+
+    $rules["{$key}.*.start_time"] = [
+        'required',
+        'date_format:H:i',
+    ];
+
+    $rules["{$key}.*.end_time"] = [
+        'required',
+        'date_format:H:i',
+    ];
+}
             }
         }
 

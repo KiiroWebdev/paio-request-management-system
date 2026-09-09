@@ -29,6 +29,8 @@ class StoreRequestRequest extends FormRequest
         |--------------------------------------------------------------------------
         */
 
+        
+
         'organization_id' => [
             'required',
             'exists:organizations,id',
@@ -60,6 +62,10 @@ class StoreRequestRequest extends FormRequest
             'required',
             'date',
         ],
+        'due_date' => [
+    'nullable',
+    'date',
+],
 
         'request_type' => [
             'required',
@@ -70,6 +76,19 @@ class StoreRequestRequest extends FormRequest
             'required',
             'in:Low,Normal,High,Urgent',
         ],
+        'attachments' => ['required', 'array', 'min:1'],
+
+'attachments.*.attachment_type' => [
+    'required',
+    'in:Request Letter,Program,Layout,Memorandum,Photo,Video,Document,Others',
+],
+
+'attachments.*.file' => [
+    'required',
+    'file',
+    'max:20480',
+    'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,gif,webp,mp4,mov',
+],
 
     ], $builder->execute($service));
 }

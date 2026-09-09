@@ -118,6 +118,17 @@ if ($request->boolean('overdue')) {
 
 }
 
+// Due Soon Filter
+if ($request->boolean('due_soon')) {
+    $query->whereBetween('due_date', [
+        today()->addDay(),
+        today()->addDays(3),
+    ])->whereNotIn('status', [
+        'Completed',
+        'Archived',
+    ]);
+}
+
     // Date Received - From
 if ($request->filled('date_from')) {
 
@@ -424,6 +435,19 @@ public function update(
     DocumentRequest $documentRequest
 )
 {
+    if ($documentRequest->status !== 'Incoming') {
+    return back()->with(
+        'error',
+        'Only Incoming requests can be assigned.'
+    );
+}
+
+if ($documentRequest->approval_status !== 'Approved') {
+    return back()->with(
+        'error',
+        'This request must be approved by an administrator before it can be assigned.'
+    );
+}
     $request->validate([
 
         'assigned_to' => [
@@ -451,6 +475,12 @@ public function update(
     DocumentRequest $documentRequest
 )
 {
+    if ($documentRequest->approval_status !== 'Approved') {
+    return back()->with(
+        'error',
+        'This request cannot be started because it is not approved.'
+    );
+}
     $this->workflowService->start($documentRequest);
 
     return back()->with(
@@ -466,6 +496,21 @@ public function update(
     DocumentRequest $documentRequest
 )
 {
+    if ($documentRequest->status !== 'Ongoing') {
+    return back()->with(
+        'error',
+        'Only Ongoing requests can be completed.'
+    );
+}
+
+if ($documentRequest->approval_status !== 'Approved') {
+    return back()->with(
+        'error',
+        'This request cannot be completed because it is not approved.'
+    );
+}
+
+
     $this->workflowService->complete($documentRequest);
 
     return back()->with(

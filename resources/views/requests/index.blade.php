@@ -274,15 +274,7 @@
 
             <div class="d-flex justify-content-end gap-2">
 
-                <a
-                    href="{{ route('requests.index') }}"
-                    class="btn btn-outline-secondary">
-
-                    <i class="bi bi-arrow-clockwise"></i>
-
-                    Reset
-
-                </a>
+                
 
                 <div class="d-flex gap-2">
 
@@ -407,7 +399,9 @@
 
                         <th>Priority</th>
 
-                        <th>Status</th>
+<th>Approval</th>
+
+<th>Status</th>
 
                         <th>Due Date</th>
 
@@ -552,6 +546,48 @@
             </span>
 
         </td>
+{{-- Approval --}}
+<td>
+
+    @php
+
+        $approvalClass = match($request->approval_status) {
+
+            'Pending' => 'bg-warning text-dark',
+
+            'Approved' => 'bg-success',
+
+            'Declined' => 'bg-danger',
+
+            'Cancelled' => 'bg-secondary',
+
+            default => 'bg-secondary',
+
+        };
+
+        $approvalLabel = match($request->approval_status) {
+
+            'Pending' => 'For Approval',
+
+            'Approved' => 'Approved',
+
+            'Declined' => 'Declined',
+
+            'Cancelled' => 'Cancelled',
+
+            default => $request->approval_status ?? '-',
+
+        };
+
+    @endphp
+
+    <span class="badge {{ $approvalClass }}">
+
+        {{ $approvalLabel }}
+
+    </span>
+
+</td>
 
         {{-- Status --}}
         <td>
@@ -584,30 +620,68 @@
 
         </td>
 
-        {{-- Due Date --}}
-        <td>
+       {{-- Due Date --}}
+<td>
+    @if($request->due_date)
 
-            @if($request->due_date)
+        @php
+            $dueDate = \Carbon\Carbon::parse($request->due_date)->startOfDay();
+            $today = \Carbon\Carbon::today();
 
-                <div>
-                    {{ \Carbon\Carbon::parse($request->due_date)->format('M d, Y') }}
-                </div>
+            $daysUntilDue = $today->diffInDays($dueDate, false);
+        @endphp
 
-                <small class="text-muted">
+        @if($daysUntilDue < 0)
 
-                    {{ \Carbon\Carbon::parse($request->due_date)->diffForHumans() }}
+            <span class="badge bg-danger">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Overdue
+            </span>
 
-                </small>
+            <div class="small text-danger mt-1">
+                {{ $dueDate->format('M d, Y') }}
+            </div>
 
-            @else
+        @elseif($daysUntilDue === 0)
 
-                <span class="text-muted">
-                    -
-                </span>
+            <span class="badge bg-warning text-dark">
+                <i class="bi bi-clock me-1"></i>
+                Due Today
+            </span>
 
-            @endif
+            <div class="small text-muted mt-1">
+                {{ $dueDate->format('M d, Y') }}
+            </div>
 
-        </td>
+        @elseif($daysUntilDue <= 3)
+
+            <span class="badge bg-warning text-dark">
+                <i class="bi bi-calendar-event me-1"></i>
+                Due Soon
+            </span>
+
+            <div class="small text-muted mt-1">
+                {{ $dueDate->format('M d, Y') }}
+            </div>
+
+        @else
+
+            <div>
+                {{ $dueDate->format('M d, Y') }}
+            </div>
+
+            <small class="text-muted">
+                {{ $dueDate->diffForHumans() }}
+            </small>
+
+        @endif
+
+    @else
+
+        <span class="text-muted">-</span>
+
+    @endif
+</td>
 
         {{-- Actions --}}
         <td class="text-center">

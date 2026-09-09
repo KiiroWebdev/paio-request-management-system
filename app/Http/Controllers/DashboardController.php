@@ -35,6 +35,14 @@ $dueTodayCount = DocumentRequest::whereDate(
     'Archived',
 ])->count();
 
+$dueSoonCount = DocumentRequest::whereBetween('due_date', [
+    today()->addDay(),
+    today()->addDays(3),
+])->whereNotIn('status', [
+    'Completed',
+    'Archived',
+])->count();
+
 $overdueCount = DocumentRequest::whereDate(
     'due_date',
     '<',
@@ -57,6 +65,7 @@ $unassignedCount = DocumentRequest::where('status', 'Incoming')
     'archivedCount',
     'highPriorityCount',
     'dueTodayCount',
+    'dueSoonCount',
     'overdueCount',
     'unassignedCount'
 ));

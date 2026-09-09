@@ -153,9 +153,9 @@
 
                             @php
                                 $supportsOptions = in_array(
-                                    $field->fieldType->key,
-                                    ['checkbox', 'dropdown', 'radio']
-                                );
+    $field->fieldType->key,
+    ['checkbox', 'select']
+);
                             @endphp
 
                             @if($supportsOptions)

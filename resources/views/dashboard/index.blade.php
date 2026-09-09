@@ -57,20 +57,28 @@
     />
 
     {{-- Due Today --}}
-    <x-stat-card
-        title="Due Today"
-        :value="$dueTodayCount"
-        icon="bi-calendar-check"
-        :href="url('/requests?due_today=1')"
-    />
+<x-stat-card
+    title="Due Today"
+    :value="$dueTodayCount"
+    icon="bi-calendar-check"
+    :href="url('/requests?due_today=1')"
+/>
 
-    {{-- Overdue --}}
-    <x-stat-card
-        title="Overdue"
-        :value="$overdueCount"
-        icon="bi-exclamation-circle"
-        :href="url('/requests?overdue=1')"
-    />
+{{-- Due Soon --}}
+<x-stat-card
+    title="Due Soon"
+    :value="$dueSoonCount"
+    icon="bi-calendar-event"
+    :href="url('/requests?due_soon=1')"
+/>
+
+{{-- Overdue --}}
+<x-stat-card
+    title="Overdue"
+    :value="$overdueCount"
+    icon="bi-exclamation-circle"
+    :href="url('/requests?overdue=1')"
+/>
 
     {{-- Unassigned --}}
     <x-stat-card

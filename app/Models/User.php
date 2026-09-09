@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -23,10 +23,40 @@ class User extends Authenticatable
      * @return array<string, string>
      */
     protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+{
+    return [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+    ];
+}
+    public function isAdmin(): bool
+{
+    return $this->role === 'Admin';
+}
+
+public function isStaff(): bool
+{
+    return $this->role === 'Staff';
+}
+
+public function attachmentDeletionRequests()
+{
+    return $this->hasMany(AttachmentDeletionRequest::class, 'requested_by');
+}
+
+public function reviewedAttachmentDeletionRequests()
+{
+    return $this->hasMany(AttachmentDeletionRequest::class, 'reviewed_by');
+}
+
+public function requestActionRequests()
+{
+    return $this->hasMany(RequestActionRequest::class, 'requested_by');
+}
+
+public function reviewedRequestActionRequests()
+{
+    return $this->hasMany(RequestActionRequest::class, 'reviewed_by');
+}
 }

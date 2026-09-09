@@ -6,49 +6,18 @@ use App\Models\Service;
 
 class BuildValidationRules
 {
-    /**
-     * Validation rules for each field type.
-     */
     protected array $typeRules = [
-
-        'text' => [
-            'string',
-            'max:255',
-        ],
-
-        'textarea' => [
-            'string',
-        ],
-
-        'number' => [
-            'numeric',
-        ],
-
-        'date' => [
-            'date',
-        ],
-
-        'time' => [
-            'date_format:H:i',
-        ],
-
-        'select' => [
-            'string',
-        ],
-
-        'checkbox' => [
-            'array',
-        ],
-
-        'file' => [
-            'file',
-        ],
-
+        'text' => ['string', 'max:255'],
+        'textarea' => ['string'],
+        'number' => ['numeric'],
+        'date' => ['date'],
+        'time' => ['date_format:H:i'],
+        'select' => ['string'],
+        'checkbox' => ['array'],
+        'file' => ['file'],
+        'schedule' => ['array', 'min:1'],
     ];
 
-    /**
-     * Build validation rules for a service.
-     */
     public function execute(Service $service): array
     {
         $service->loadMissing([
@@ -56,35 +25,59 @@ class BuildValidationRules
         ]);
 
         $rules = [
-
-    'answers' => ['array'],
-
-];
-          
-
-        /*
-        |--------------------------------------------------------------------------
-        | Dynamic Service Fields
-        |--------------------------------------------------------------------------
-        */
+            'answers' => ['array'],
+        ];
 
         foreach ($service->fields as $field) {
 
+            $fieldType = $field->fieldType->key;
+
             $fieldRules = [];
 
-            // Required / Nullable
             $fieldRules[] = $field->required
                 ? 'required'
                 : 'nullable';
 
-            // Add rules based on field type
-            $fieldRules = array_merge(
-                $fieldRules,
-                $this->typeRules[$field->fieldType->key] ?? $this->typeRules['text']
-            );
+            /*
+             * Schedule fields are arrays.
+             * All other fields use their normal type rules.
+             */
+            if ($fieldType === 'schedule') {
 
-            // Save rules for this field
+                $fieldRules[] = 'array';
+                $fieldRules[] = 'min:1';
+
+            } else {
+
+                $fieldRules = array_merge(
+                    $fieldRules,
+                    $this->typeRules[$fieldType]
+                        ?? $this->typeRules['text']
+                );
+            }
+
             $rules["answers.{$field->id}"] = $fieldRules;
+
+            /*
+             * Validate each Schedule entry.
+             */
+            if ($fieldType === 'schedule') {
+
+                $rules["answers.{$field->id}.*.date"] = [
+                    'required',
+                    'date',
+                ];
+
+                $rules["answers.{$field->id}.*.start_time"] = [
+                    'required',
+                    'date_format:H:i',
+                ];
+
+                $rules["answers.{$field->id}.*.end_time"] = [
+                    'required',
+                    'date_format:H:i',
+                ];
+            }
         }
 
         return $rules;

@@ -401,7 +401,7 @@
 
         <div class="document-title">
 
-            DOCUMENT REQUEST
+            PAIO SERVICE REQUEST
 
         </div>
 
@@ -592,8 +592,15 @@
 
                         <span class="status {{ $statusClass }}">
 
-                            {{ $documentRequest->status }}
-
+                            @if($documentRequest->approval_status === 'Pending' && $documentRequest->status === 'Incoming')
+    For Approval
+@elseif($documentRequest->approval_status === 'Declined')
+    Declined
+@elseif($documentRequest->approval_status === 'Cancelled')
+    Cancelled
+@else
+    {{ $documentRequest->status }}
+@endif
                         </span>
 
                     </td>
@@ -748,17 +755,74 @@
 
                                 {{-- TIME --}}
 
-                                @case('time')
+@case('time')
 
-                                    {{ $value
-                                        ? \Carbon\Carbon::parse($value)->format('h:i A')
-                                        : '-'
-                                    }}
+    {{ $value
+        ? \Carbon\Carbon::parse($value)->format('h:i A')
+        : '-'
+    }}
 
-                                    @break
+    @break
 
 
-                                {{-- CHECKBOX --}}
+{{-- SCHEDULE --}}
+
+@case('schedule')
+
+    @php
+
+        $schedules = $value
+            ? json_decode($value, true)
+            : [];
+
+    @endphp
+
+    @if(is_array($schedules) && count($schedules))
+
+        @foreach($schedules as $schedule)
+
+            <div style="margin-bottom: 8px;">
+
+                <strong>
+                    <i class="bi bi-calendar-event"></i>
+
+                    @if(!empty($schedule['date']))
+                        {{ \Carbon\Carbon::parse($schedule['date'])->format('F d, Y') }}
+                    @else
+                        -
+                    @endif
+                </strong>
+
+                @if(!empty($schedule['start_time']) && !empty($schedule['end_time']))
+
+                    <br>
+
+                    <span>
+                        <i class="bi bi-clock"></i>
+
+                        {{ \Carbon\Carbon::parse($schedule['start_time'])->format('h:i A') }}
+
+                        –
+
+                        {{ \Carbon\Carbon::parse($schedule['end_time'])->format('h:i A') }}
+                    </span>
+
+                @endif
+
+            </div>
+
+        @endforeach
+
+    @else
+
+        -
+
+    @endif
+
+    @break
+
+
+{{-- CHECKBOX --}}
 
                                 @case('checkbox')
 

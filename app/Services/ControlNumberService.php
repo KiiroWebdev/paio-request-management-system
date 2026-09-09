@@ -22,7 +22,7 @@ class ControlNumberService
             : 1;
 
         return sprintf(
-            'PAIO-%d-%06d',
+            'PAIO-%d-%03d',
             $year,
             $next
         );

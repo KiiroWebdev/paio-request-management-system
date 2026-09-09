@@ -12,6 +12,11 @@ class DocumentRequest extends Model
 {
     protected $table = 'requests';
 
+    public function actionRequests(): HasMany
+{
+    return $this->hasMany(RequestActionRequest::class);
+}
+
     protected $fillable = [
 
         'control_no',
@@ -35,6 +40,14 @@ class DocumentRequest extends Model
         'description',
 
         'status',
+
+        'approval_status',
+        
+        'approval_reviewed_by',
+        
+        'approval_reviewed_at',
+        
+        'approval_review_note',
 
         'priority',
 
@@ -65,6 +78,8 @@ class DocumentRequest extends Model
         'archived_at' => 'datetime',
 
         'assigned_at' => 'datetime',
+
+        'approval_reviewed_at' => 'datetime',
 
     ];
 
@@ -124,4 +139,10 @@ class DocumentRequest extends Model
         'request_id'
     )->latest();
 }
+
+public function approvalReviewer()
+{
+    return $this->belongsTo(User::class, 'approval_reviewed_by');
+}
+
 }

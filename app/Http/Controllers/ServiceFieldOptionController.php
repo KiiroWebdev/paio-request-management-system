@@ -24,6 +24,18 @@ class ServiceFieldOptionController extends Controller
     );
 }
 
+/**
+ * Show the create option page.
+ */
+public function create(
+    Service $service,
+    ServiceField $field
+) {
+    return view(
+        'services.fields.options.create',
+        compact('service', 'field')
+    );
+}
     /**
      * Store a new option.
      */

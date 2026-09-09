@@ -21,6 +21,23 @@
     </div>
 @endif
 
+@if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+        {{ session('error') }}
+
+        <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="alert"
+            aria-label="Close">
+        </button>
+
+    </div>
+@endif
+
 <div class="container-fluid">
 
     <div class="row">
@@ -174,6 +191,20 @@
 
                         </div>
 
+                        <div class="col-md-6 mb-3">
+
+    <label class="text-muted">
+        Due Date
+    </label>
+
+    <div class="fw-semibold">
+
+        {{ $documentRequest->due_date?->format('F d, Y') ?? '-' }}
+
+    </div>
+
+</div>
+
                         <div class="col-12">
 
                             <label class="text-muted">
@@ -254,19 +285,80 @@
 
 
                 {{-- ===================================== --}}
-                {{-- Time --}}
-                {{-- ===================================== --}}
+{{-- Time --}}
+{{-- ===================================== --}}
 
-                @case('time')
+@case('time')
 
-                    {{ \Carbon\Carbon::parse($value)->format('h:i A') }}
+    {{ \Carbon\Carbon::parse($value)->format('h:i A') }}
 
-                    @break
+    @break
 
 
-                {{-- ===================================== --}}
-                {{-- Checkbox --}}
-                {{-- ===================================== --}}
+{{-- ===================================== --}}
+{{-- Schedule --}}
+{{-- ===================================== --}}
+
+@case('schedule')
+
+    @php
+        $schedules = json_decode($value, true);
+    @endphp
+
+    @if(is_array($schedules) && count($schedules))
+
+        <div class="d-flex flex-column gap-2">
+
+            @foreach($schedules as $schedule)
+
+                <div class="border rounded p-2 bg-light">
+
+                    <div class="fw-semibold">
+                        <i class="bi bi-calendar-event me-1"></i>
+
+                        @if(!empty($schedule['date']))
+                            {{ \Carbon\Carbon::parse($schedule['date'])->format('F d, Y') }}
+                        @else
+                            -
+                        @endif
+                    </div>
+
+                    <div class="small text-muted mt-1">
+
+                        @if(!empty($schedule['start_time']) && !empty($schedule['end_time']))
+
+                            <i class="bi bi-clock me-1"></i>
+
+                            {{ \Carbon\Carbon::parse($schedule['start_time'])->format('h:i A') }}
+                            –
+                            {{ \Carbon\Carbon::parse($schedule['end_time'])->format('h:i A') }}
+
+                        @else
+
+                            -
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            @endforeach
+
+        </div>
+
+    @else
+
+        -
+
+    @endif
+
+    @break
+
+
+{{-- ===================================== --}}
+{{-- Checkbox --}}
+{{-- ===================================== --}}
 
                 @case('checkbox')
 
@@ -468,162 +560,1003 @@
 
             @switch($documentRequest->status)
 
-                {{-- Incoming --}}
-                @case('Incoming')
+    {{-- ===================================================== --}}
+    {{-- Incoming --}}
+    {{-- ===================================================== --}}
+    @case('Incoming')
 
-                    <form
-                        method="POST"
-                        action="{{ route('requests.assign', $documentRequest) }}">
+        {{-- =============================================== --}}
+        {{-- Pending Approval --}}
+        {{-- =============================================== --}}
+        @if($documentRequest->approval_status === 'Pending')
 
-                        @csrf
+            <div class="alert alert-warning">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-hourglass-split fs-4 me-2"></i>
+
+                    <div>
+                        <strong>Awaiting Administrator Approval</strong>
+
+                        <div class="small mt-1">
+                            This request must be approved before it can be assigned
+                            and processed.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Admin Approval Actions --}}
+            @if(auth()->user()->role === 'Admin')
+
+                <div class="d-grid gap-2">
+
+                    {{-- Approve --}}
+                    <button
+                        type="button"
+                        class="btn btn-success"
+                        data-bs-toggle="modal"
+                        data-bs-target="#approveRequestModal">
+
+                        <i class="bi bi-check-circle me-1"></i>
+                        Approve Request
+
+                    </button>
+
+                    {{-- Decline --}}
+                    <button
+                        type="button"
+                        class="btn btn-outline-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#declineRequestModal">
+
+                        <i class="bi bi-x-circle me-1"></i>
+                        Decline Request
+
+                    </button>
+
+                    {{-- Cancel --}}
+                    <button
+                        type="button"
+                        class="btn btn-outline-secondary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cancelRequestModal">
+
+                        <i class="bi bi-slash-circle me-1"></i>
+                        Cancel Request
+
+                    </button>
+
+                </div>
+
+            @endif
+
+        {{-- =============================================== --}}
+        {{-- Approved --}}
+        {{-- =============================================== --}}
+        @elseif($documentRequest->approval_status === 'Approved')
+
+            <div class="alert alert-success">
+                <div class="d-flex align-items-start">
+
+                    <i class="bi bi-check-circle-fill fs-4 me-2"></i>
+
+                    <div>
+                        <strong>Request Approved</strong>
+
+                        <div class="small mt-1">
+                            This request has been approved and may now be assigned
+                            for processing.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- Assign Request --}}
+            <form
+                method="POST"
+                action="{{ route('requests.assign', $documentRequest) }}">
+
+                @csrf
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Assign To
+                    </label>
+
+                    <select
+                        name="assigned_to"
+                        class="form-select"
+                        required>
+
+                        <option value="">
+                            Select User
+                        </option>
+
+                        @foreach($users as $user)
+
+                            <option value="{{ $user->id }}">
+
+                                {{ $user->name }}
+
+                            </option>
+
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+                <button
+                    class="btn btn-primary w-100">
+
+                    <i class="bi bi-person-check-fill me-1"></i>
+
+                    Assign Request
+
+                </button>
+
+            </form>
+
+        {{-- =============================================== --}}
+        {{-- Declined --}}
+        {{-- =============================================== --}}
+        @elseif($documentRequest->approval_status === 'Declined')
+
+            <div class="alert alert-danger">
+
+                <div class="d-flex align-items-start">
+
+                    <i class="bi bi-x-circle-fill fs-4 me-2"></i>
+
+                    <div class="flex-grow-1">
+
+                        <strong>Request Declined</strong>
+
+                        <div class="small mt-1">
+                            This request was declined by an administrator.
+                        </div>
+
+                        @if($documentRequest->approval_review_note)
+
+                            <hr>
+
+                            <div>
+                                <strong>Review Note:</strong>
+                            </div>
+
+                            <div class="small">
+                                {{ $documentRequest->approval_review_note }}
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- Admin can restore for approval --}}
+            @if(auth()->user()->role === 'Admin')
+
+                <button
+                    type="button"
+                    class="btn btn-warning w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#restoreForApprovalModal">
+
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                    Restore for Approval
+
+                </button>
+
+            @endif
+
+        {{-- =============================================== --}}
+        {{-- Cancelled --}}
+        {{-- =============================================== --}}
+        @elseif($documentRequest->approval_status === 'Cancelled')
+
+            <div class="alert alert-secondary">
+
+                <div class="d-flex align-items-start">
+
+                    <i class="bi bi-slash-circle-fill fs-4 me-2"></i>
+
+                    <div class="flex-grow-1">
+
+                        <strong>Request Cancelled</strong>
+
+                        <div class="small mt-1">
+                            This request was cancelled by an administrator.
+                        </div>
+
+                        @if($documentRequest->approval_review_note)
+
+                            <hr>
+
+                            <div>
+                                <strong>Review Note:</strong>
+                            </div>
+
+                            <div class="small">
+                                {{ $documentRequest->approval_review_note }}
+                            </div>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {{-- Admin can restore for approval --}}
+            @if(auth()->user()->role === 'Admin')
+
+                <button
+                    type="button"
+                    class="btn btn-warning w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#restoreForApprovalModal">
+
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                    Restore for Approval
+
+                </button>
+
+            @endif
+
+        @endif
+
+        @break
+
+
+    {{-- ===================================================== --}}
+    {{-- Assigned --}}
+    {{-- ===================================================== --}}
+    @case('Assigned')
+
+        <form
+            method="POST"
+            action="{{ route('requests.start', $documentRequest) }}">
+
+            @csrf
+
+            <button
+                class="btn btn-success w-100">
+
+                <i class="bi bi-play-circle me-1"></i>
+
+                Start Work
+
+            </button>
+
+        </form>
+
+        @break
+
+
+    {{-- ===================================================== --}}
+    {{-- Ongoing --}}
+    {{-- ===================================================== --}}
+    @case('Ongoing')
+
+        <form
+            method="POST"
+            action="{{ route('requests.complete', $documentRequest) }}">
+
+            @csrf
+
+            <button
+                class="btn btn-primary w-100">
+
+                <i class="bi bi-check-circle me-1"></i>
+
+                Mark Completed
+
+            </button>
+
+        </form>
+
+        @break
+
+
+    {{-- ===================================================== --}}
+    {{-- Completed --}}
+    {{-- ===================================================== --}}
+    @case('Completed')
+
+        @if(auth()->user()->role === 'Admin')
+
+            {{-- Admin can directly archive --}}
+            <form
+                method="POST"
+                action="{{ route('requests.archive', $documentRequest) }}">
+
+                @csrf
+
+                <button
+                    type="submit"
+                    class="btn btn-dark w-100"
+                    onclick="return confirm('Are you sure you want to archive this request?');">
+
+                    <i class="bi bi-archive me-1"></i>
+
+                    Archive Request
+
+                </button>
+
+            </form>
+
+        @else
+
+            {{-- Staff must request archive --}}
+            <button
+                type="button"
+                class="btn btn-outline-dark w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#archiveRequestModal">
+
+                <i class="bi bi-archive me-1"></i>
+
+                Request Archive
+
+            </button>
+
+        @endif
+
+        @break
+
+
+    {{-- ===================================================== --}}
+    {{-- Archived --}}
+    {{-- ===================================================== --}}
+    @case('Archived')
+
+        <div class="alert alert-secondary mb-3">
+
+            <i class="bi bi-archive me-1"></i>
+
+            This request is currently archived.
+
+        </div>
+
+        @if(auth()->user()->role === 'Admin')
+
+            {{-- Admin can directly restore --}}
+            <form
+                method="POST"
+                action="{{ route('requests.restore', $documentRequest) }}">
+
+                @csrf
+
+                <button
+                    type="submit"
+                    class="btn btn-success w-100"
+                    onclick="return confirm('Restore this request and move it back to Completed?');">
+
+                    <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                    Restore Request
+
+                </button>
+
+            </form>
+
+        @else
+
+            {{-- Staff must request restore --}}
+            <button
+                type="button"
+                class="btn btn-outline-success w-100"
+                data-bs-toggle="modal"
+                data-bs-target="#restoreRequestModal">
+
+                <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                Request Restore
+
+            </button>
+
+        @endif
+
+        @break
+
+@endswitch
+
+        </div>
+        {{-- ========================================================= --}}
+{{-- Archive Request Modal --}}
+{{-- ========================================================= --}}
+
+@if(auth()->user()->role !== 'Admin' && $documentRequest->status === 'Completed')
+
+    <div
+        class="modal fade"
+        id="archiveRequestModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        <i class="bi bi-archive me-2"></i>
+                        Request Archive
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route('request-action-requests.store', $documentRequest) }}">
+
+                    @csrf
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="Archive">
+
+                    <div class="modal-body">
 
                         <div class="mb-3">
 
-                            <label class="form-label">
-
-                                Assign To
-
+                            <label class="form-label fw-semibold">
+                                Document Request
                             </label>
 
-                            <select
-                                name="assigned_to"
-                                class="form-select"
-                                required>
-
-                                <option value="">
-
-                                    Select User
-
-                                </option>
-
-                                @foreach($users as $user)
-
-                                    <option value="{{ $user->id }}">
-
-                                        {{ $user->name }}
-
-                                    </option>
-
-                                @endforeach
-
-                            </select>
+                            <div class="form-control bg-light">
+                                {{ $documentRequest->control_no }}
+                            </div>
 
                         </div>
 
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Reason for Archive
+                            </label>
+
+                            <textarea
+                                name="reason"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Please explain why this request should be archived."
+                                required></textarea>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
                         <button
-                            class="btn btn-primary w-100">
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
 
-                            <i class="bi bi-person-check-fill"></i>
-
-                            Assign Request
+                            Cancel
 
                         </button>
 
-                    </form>
-
-                    @break
-
-                {{-- Assigned --}}
-                @case('Assigned')
-
-                    <form
-                        method="POST"
-                        action="{{ route('requests.start', $documentRequest) }}">
-
-                        @csrf
-
                         <button
-                            class="btn btn-success w-100">
+                            type="submit"
+                            class="btn btn-dark">
 
-                            <i class="bi bi-play-circle"></i>
-
-                            Start Work
+                            <i class="bi bi-send me-1"></i>
+                            Submit Archive Request
 
                         </button>
 
-                    </form>
+                    </div>
 
-                    @break
+                </form>
 
-                {{-- Ongoing --}}
-                @case('Ongoing')
-
-                    <form
-                        method="POST"
-                        action="{{ route('requests.complete', $documentRequest) }}">
-
-                        @csrf
-
-                        <button
-                            class="btn btn-primary w-100">
-
-                            <i class="bi bi-check-circle"></i>
-
-                            Mark Completed
-
-                        </button>
-
-                    </form>
-
-                    @break
-
-                {{-- Completed --}}
-                @case('Completed')
-
-                    <form
-                        method="POST"
-                        action="{{ route('requests.archive', $documentRequest) }}">
-
-                        @csrf
-
-                        <button
-                            class="btn btn-dark w-100">
-
-                            <i class="bi bi-archive"></i>
-
-                            Archive Request
-
-                        </button>
-
-                    </form>
-
-                    @break
-
-                {{-- Archived --}}
-@case('Archived')
-
-    <div class="alert alert-secondary mb-3">
-
-        This request is currently archived.
-
-    </div>
-
-    <form
-        method="POST"
-        action="{{ route('requests.restore', $documentRequest) }}">
-
-        @csrf
-
-        <button
-            type="submit"
-            class="btn btn-success w-100"
-            onclick="return confirm('Restore this request and move it back to Incoming?');">
-
-            <i class="bi bi-arrow-counterclockwise me-1"></i>
-
-            Restore Request
-
-        </button>
-
-    </form>
-
-    @break
-
-            @endswitch
+            </div>
 
         </div>
 
     </div>
+
+@endif
+
+    </div>
+    {{-- ========================================================= --}}
+{{-- Restore Request Modal --}}
+{{-- ========================================================= --}}
+
+@if(auth()->user()->role !== 'Admin' && $documentRequest->status === 'Archived')
+
+    <div
+        class="modal fade"
+        id="restoreRequestModal"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        <i class="bi bi-arrow-counterclockwise me-2"></i>
+                        Request Restore
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route('request-action-requests.store', $documentRequest) }}">
+
+                    @csrf
+
+                    <input
+                        type="hidden"
+                        name="action"
+                        value="Restore">
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Document Request
+                            </label>
+
+                            <div class="form-control bg-light">
+                                {{ $documentRequest->control_no }}
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                Reason for Restore
+                            </label>
+
+                            <textarea
+                                name="reason"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Please explain why this archived request should be restored."
+                                required></textarea>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-success">
+
+                            <i class="bi bi-send me-1"></i>
+                            Submit Restore Request
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+@endif
+
+{{-- Approve Request Modal --}}
+<div
+    class="modal fade"
+    id="approveRequestModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+                    <i class="bi bi-check-circle text-success me-1"></i>
+                    Approve Request
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="{{ route('requests.approve', $documentRequest) }}">
+
+                @csrf
+
+                <div class="modal-body">
+
+                    <p>
+                        Are you sure you want to approve this request?
+                    </p>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+                            Review Note
+                            <span class="text-muted">(Optional)</span>
+                        </label>
+
+                        <textarea
+                            name="approval_review_note"
+                            class="form-control"
+                            rows="4"
+                            placeholder="Enter an optional approval note..."></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-success">
+
+                        <i class="bi bi-check-circle me-1"></i>
+                        Approve Request
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{{-- Decline Request Modal --}}
+<div
+    class="modal fade"
+    id="declineRequestModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="bi bi-x-circle text-danger me-1"></i>
+
+                    Decline Request
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="{{ route('requests.decline', $documentRequest) }}">
+
+                @csrf
+
+                <div class="modal-body">
+
+                    <div class="alert alert-warning">
+
+                        Please provide a reason for declining this request.
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Reason
+
+                            <span class="text-danger">*</span>
+
+                        </label>
+
+                        <textarea
+                            name="approval_review_note"
+                            class="form-control"
+                            rows="4"
+                            required
+                            placeholder="Enter reason for declining..."></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Cancel
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-danger">
+
+                        <i class="bi bi-x-circle me-1"></i>
+
+                        Decline Request
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{{-- Cancel Request Modal --}}
+<div
+    class="modal fade"
+    id="cancelRequestModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="bi bi-slash-circle text-secondary me-1"></i>
+
+                    Cancel Request
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="{{ route('requests.cancel', $documentRequest) }}">
+
+                @csrf
+
+                <div class="modal-body">
+
+                    <div class="alert alert-warning">
+
+                        Please provide a reason for cancelling this request.
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Reason
+
+                            <span class="text-danger">*</span>
+
+                        </label>
+
+                        <textarea
+                            name="approval_review_note"
+                            class="form-control"
+                            rows="4"
+                            required
+                            placeholder="Enter reason for cancelling..."></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-secondary">
+
+                        <i class="bi bi-slash-circle me-1"></i>
+
+                        Cancel Request
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{{-- Restore for Approval Modal --}}
+<div
+    class="modal fade"
+    id="restoreForApprovalModal"
+    tabindex="-1"
+    aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h5 class="modal-title">
+
+                    <i class="bi bi-arrow-counterclockwise text-warning me-1"></i>
+
+                    Restore for Approval
+
+                </h5>
+
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal">
+                </button>
+
+            </div>
+
+            <form
+                method="POST"
+                action="{{ route('requests.restore-for-approval', $documentRequest) }}">
+
+                @csrf
+
+                <div class="modal-body">
+
+                    <div class="alert alert-warning">
+
+                        <strong>Important:</strong>
+
+                        Restoring this request will return it to
+                        <strong>Pending Approval</strong>.
+
+                        It will <strong>not</strong> automatically approve it.
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label class="form-label">
+
+                            Reason / Review Note
+
+                            <span class="text-danger">*</span>
+
+                        </label>
+
+                        <textarea
+                            name="approval_review_note"
+                            class="form-control"
+                            rows="4"
+                            required
+                            placeholder="Enter reason for restoring this request for approval..."></textarea>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+
+                        Close
+
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="btn btn-warning">
+
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+
+                        Restore for Approval
+
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
 
 
     {{-- ========================================= --}}
@@ -654,15 +1587,16 @@
 
             </a>
 
-            <a
-    href="{{ route('requests.edit', ['documentRequest' => $documentRequest]) }}"
-    class="btn btn-primary">
+            @if(auth()->user()->role === 'Admin')
+    <a
+        href="{{ route('requests.edit', ['documentRequest' => $documentRequest]) }}"
+        class="btn btn-primary">
 
-    <i class="bi bi-pencil"></i>
+        <i class="bi bi-pencil"></i>
+        Edit Request
 
-    Edit Request
-
-</a>
+    </a>
+@endif
 
             <a
     href="{{ route('requests.print', $documentRequest) }}"
@@ -856,53 +1790,170 @@
         </div>
 
         {{-- Actions --}}
-        <div class="d-flex gap-2">
+<div class="d-flex gap-2">
 
-            <a
-                href="{{ route('attachments.show', $attachment) }}"
-                target="_blank"
-                class="btn btn-sm btn-outline-primary"
-                title="View">
+    <a
+        href="{{ route('attachments.show', $attachment) }}"
+        target="_blank"
+        class="btn btn-sm btn-outline-primary"
+        title="View">
 
-                <i class="bi bi-eye"></i>
+        <i class="bi bi-eye"></i>
+        View
 
-                View
+    </a>
 
-            </a>
+    <a
+        href="{{ route('attachments.download', $attachment) }}"
+        class="btn btn-sm btn-outline-secondary"
+        title="Download">
 
-            <a
-                href="{{ route('attachments.download', $attachment) }}"
-                class="btn btn-sm btn-outline-secondary"
-                title="Download">
+        <i class="bi bi-download"></i>
+        Download
 
-                <i class="bi bi-download"></i>
+    </a>
 
-                Download
+    @if(auth()->user()->role === 'Admin')
 
-            </a>
+        {{-- Admin can directly delete --}}
+        <form
+            method="POST"
+            action="{{ route('attachments.destroy', $attachment) }}"
+            class="d-inline"
+            onsubmit="return confirm('Are you sure you want to delete this attachment?');">
 
-            <form
-    method="POST"
-    action="{{ route('attachments.destroy', $attachment) }}"
-    class="d-inline"
-    onsubmit="return confirm('Are you sure you want to delete this attachment?');">
+            @csrf
+            @method('DELETE')
 
-    @csrf
-    @method('DELETE')
+            <button
+                type="submit"
+                class="btn btn-sm btn-outline-danger"
+                title="Delete">
 
-    <button
-        type="submit"
-        class="btn btn-sm btn-outline-danger"
-        title="Delete">
+                <i class="bi bi-trash"></i>
+                Delete
 
-        <i class="bi bi-trash"></i>
+            </button>
 
-        Delete
+        </form>
 
-    </button>
+    @else
 
-</form>
+        {{-- Staff can request deletion --}}
+        <button
+            type="button"
+            class="btn btn-sm btn-outline-warning"
+            data-bs-toggle="modal"
+            data-bs-target="#deletionRequestModal{{ $attachment->id }}">
+
+            <i class="bi bi-trash"></i>
+            Request Deletion
+
+        </button>
+
+    @endif
+
+</div>
+@if(auth()->user()->role !== 'Admin')
+
+    {{-- Deletion Request Modal --}}
+    <div
+        class="modal fade"
+        id="deletionRequestModal{{ $attachment->id }}"
+        tabindex="-1"
+        aria-hidden="true">
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Request File Deletion
+                    </h5>
+
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close">
+                    </button>
+
+                </div>
+
+                <form
+                    method="POST"
+                    action="{{ route('attachments.deletion-request.store', $attachment) }}">
+
+                    @csrf
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold">
+                                File
+                            </label>
+
+                            <div class="form-control bg-light">
+                                {{ $attachment->file_name }}
+                            </div>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label
+                                for="reason{{ $attachment->id }}"
+                                class="form-label fw-semibold">
+
+                                Reason for deletion
+                            </label>
+
+                            <textarea
+                                name="reason"
+                                id="reason{{ $attachment->id }}"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Please explain why this file should be deleted."
+                                required></textarea>
+
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+
+                            Cancel
+
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-warning">
+
+                            <i class="bi bi-send"></i>
+                            Submit Request
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
+
+    </div>
+
+@endif
 
     </div>
 

@@ -81,4 +81,13 @@
 
         @break
 
+        @case('schedule')
+
+    <x-dynamic.schedule
+        :field="$field"
+        :name="$name"
+        :value="$value" />
+
+    @break
+
 @endswitch

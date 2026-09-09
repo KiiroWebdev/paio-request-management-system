@@ -1,47 +1,87 @@
 @extends('layouts.master')
 
-@section('page-title', 'Edit Option')
+@section('page-title', 'Edit Field')
 
 @section('content')
 
 <div class="container-fluid">
 
-    <h2 class="mb-1">
+    <x-admin.page-header
+        :title="'Edit Field - '.$service->name"
+        :subtitle="'Modify the field: '.$field->label">
 
-        Edit Option
+        <a
+            href="{{ route('services.fields.index', $service) }}"
+            class="btn btn-secondary">
 
-    </h2>
+            <i class="bi bi-arrow-left me-1"></i>
 
-    <p class="text-muted">
+            Back to Fields
 
-        Field: <strong>{{ $field->label }}</strong>
+        </a>
 
-    </p>
+    </x-admin.page-header>
+
+
+    @if($errors->any())
+
+        <div class="alert alert-danger">
+
+            <div class="fw-semibold mb-2">
+
+                <i class="bi bi-exclamation-triangle me-1"></i>
+
+                Please correct the following errors:
+
+            </div>
+
+            <ul class="mb-0">
+
+                @foreach($errors->all() as $error)
+
+                    <li>{{ $error }}</li>
+
+                @endforeach
+
+            </ul>
+
+        </div>
+
+    @endif
+
 
     <form
         method="POST"
-        action="{{ route('services.fields.options.update', [$service, $field, $option]) }}">
+        action="{{ route(
+            'services.fields.update',
+            [$service, $field]
+        ) }}">
 
         @csrf
+
         @method('PUT')
 
-        @include('service-field-options.form')
+        @include('services.fields.form')
 
-        <div class="mt-3">
-
-            <button class="btn btn-primary">
-
-                Save Changes
-
-            </button>
+        <div class="d-flex justify-content-end gap-2 mt-4">
 
             <a
-                href="{{ route('services.fields.options.index', [$service, $field]) }}"
+                href="{{ route('services.fields.index', $service) }}"
                 class="btn btn-secondary">
 
                 Cancel
 
             </a>
+
+            <button
+                type="submit"
+                class="btn btn-primary">
+
+                <i class="bi bi-check-circle me-1"></i>
+
+                Save Changes
+
+            </button>
 
         </div>
 

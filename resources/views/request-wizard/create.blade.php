@@ -28,10 +28,9 @@
                 </div>
             @endif
 
-            <form
-                method="POST"
-                action="{{ route('request-wizard.store', $service) }}"
-                enctype="multipart/form-data">
+           <form method="POST"
+      action="{{ route('requests.store', $service) }}"
+      enctype="multipart/form-data">
 
                 @csrf
 
@@ -189,10 +188,13 @@
 
 </div>
 
-{{-- Date / Type / Priority --}}
+{{-- Date / Due Date / Type / Priority --}}
 <div class="row">
 
-    <div class="col-md-4 mb-3">
+    <div class="row g-3">
+
+    {{-- Date Received --}}
+    <div class="col-md-3">
 
         <label class="form-label">
             Date Received <span class="text-danger">*</span>
@@ -213,7 +215,29 @@
 
     </div>
 
-    <div class="col-md-4 mb-3">
+    {{-- Due Date --}}
+    <div class="col-md-3">
+
+        <label class="form-label">
+            Due Date
+        </label>
+
+        <input
+            type="date"
+            name="due_date"
+            value="{{ old('due_date') }}"
+            class="form-control @error('due_date') is-invalid @enderror">
+
+        @error('due_date')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+
+    </div>
+
+    {{-- Request Type --}}
+    <div class="col-md-3">
 
         <label class="form-label">
             Request Type
@@ -243,7 +267,8 @@
 
     </div>
 
-    <div class="col-md-4 mb-3">
+    {{-- Priority --}}
+    <div class="col-md-3">
 
         <label class="form-label">
             Priority
@@ -304,6 +329,90 @@
     />
 
 @endforeach
+
+<hr class="my-4">
+
+<div class="mb-4">
+    <h5 class="mb-1">
+        <i class="bi bi-paperclip me-2"></i>
+        Attachments
+    </h5>
+
+    <p class="text-muted mb-3">
+        Please upload the documents or files required for this request.
+        At least one attachment is required.
+    </p>
+
+    <div id="attachmentRows">
+
+        <div class="attachment-row card border mb-3">
+            <div class="card-body">
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Attachment Type
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select
+                            name="attachments[0][attachment_type]"
+                            class="form-select"
+                            required>
+                            <option value="">Select attachment type</option>
+                            <option value="Request Letter">Request Letter</option>
+                            <option value="Program">Program</option>
+                            <option value="Layout">Layout</option>
+                            <option value="Memorandum">Memorandum</option>
+                            <option value="Photo">Photo</option>
+                            <option value="Video">Video</option>
+                            <option value="Document">Document</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-7">
+                        <label class="form-label">
+                            File
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="file"
+                            name="attachments[0][file]"
+                            class="form-control"
+                            required>
+
+                        <div class="form-text">
+                            Maximum file size: 20 MB
+                        </div>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger remove-attachment"
+                            disabled>
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <button
+        type="button"
+        id="addAttachment"
+        class="btn btn-outline-primary">
+        <i class="bi bi-plus-circle me-1"></i>
+        Add Another File
+    </button>
+</div>
 
 <div class="mt-4">
 
@@ -388,3 +497,161 @@ document.addEventListener('DOMContentLoaded', function () {
 @endpush
 
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const container = document.getElementById('attachmentRows');
+    const addButton = document.getElementById('addAttachment');
+
+    if (!container || !addButton) {
+        return;
+    }
+
+    let attachmentIndex = 1;
+
+    addButton.addEventListener('click', function () {
+
+        const row = document.createElement('div');
+
+        row.className = 'attachment-row card border mb-3';
+
+        row.innerHTML = `
+            <div class="card-body">
+
+                <div class="row g-3 align-items-end">
+
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            Attachment Type
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select
+                            name="attachments[${attachmentIndex}][attachment_type]"
+                            class="form-select"
+                            required>
+
+                            <option value="">
+                                Select attachment type
+                            </option>
+
+                            <option value="Request Letter">
+                                Request Letter
+                            </option>
+
+                            <option value="Program">
+                                Program
+                            </option>
+
+                            <option value="Layout">
+                                Layout
+                            </option>
+
+                            <option value="Memorandum">
+                                Memorandum
+                            </option>
+
+                            <option value="Photo">
+                                Photo
+                            </option>
+
+                            <option value="Video">
+                                Video
+                            </option>
+
+                            <option value="Document">
+                                Document
+                            </option>
+
+                            <option value="Others">
+                                Others
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-7">
+
+                        <label class="form-label">
+                            File
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="file"
+                            name="attachments[${attachmentIndex}][file]"
+                            class="form-control"
+                            required>
+
+                        <div class="form-text">
+                            Maximum file size: 20 MB
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-1">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-danger remove-attachment">
+
+                            <i class="bi bi-trash"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        `;
+
+        container.appendChild(row);
+
+        attachmentIndex++;
+
+        updateRemoveButtons();
+    });
+
+
+    container.addEventListener('click', function (event) {
+
+        const button =
+            event.target.closest('.remove-attachment');
+
+        if (!button) {
+            return;
+        }
+
+        const row =
+            button.closest('.attachment-row');
+
+        if (row) {
+            row.remove();
+        }
+
+        updateRemoveButtons();
+    });
+
+
+    function updateRemoveButtons() {
+
+        const rows =
+            container.querySelectorAll('.attachment-row');
+
+        rows.forEach(function (row) {
+
+            const button =
+                row.querySelector('.remove-attachment');
+
+            button.disabled =
+                rows.length === 1;
+
+        });
+    }
+
+});
+</script>
+@endpush

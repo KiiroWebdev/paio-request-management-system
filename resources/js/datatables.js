@@ -27,14 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     new DataTable(table, {
+    responsive: true,
 
-        responsive: true,
+    paging: false,
 
-        pageLength: 10,
+    info: false,
 
-        lengthMenu: [10, 25, 50, 100],
+    searching: false,
 
-        order: [[0, 'desc']],
+    order: [[0, 'desc']],
 
         layout: {
 
