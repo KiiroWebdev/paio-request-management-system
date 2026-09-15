@@ -1,0 +1,68 @@
+/* ========================================
+   Notification Dropdown
+   ======================================== */
+
+.notification-item {
+    transition: background-color 0.2s ease;
+}
+
+/* Overdue */
+.notification-overdue {
+    background-color: #fff5f5;
+}
+
+.notification-overdue:hover {
+    background-color: #ffe5e5;
+}
+
+/* Due Today */
+.notification-today {
+    background-color: #fffbea;
+}
+
+.notification-today:hover {
+    background-color: #fff3cd;
+}
+
+/* Due Soon */
+.notification-soon {
+    background-color: #f3fff6;
+}
+
+.notification-soon:hover {
+    background-color: #e2f7e8;
+}
+
+/* For Approval */
+
+.notification-approval {
+    background-color: #f3f7ff;
+}
+
+.notification-approval:hover {
+    background-color: #e3edff;
+}
+
+/* Assigned to You */
+
+.notification-assigned {
+    background-color: #f0fbff;
+}
+
+.notification-assigned:hover {
+    background-color: #dff5fc;
+}
+
+/* Ongoing */
+.notification-ongoing {
+    background-color: #f8f4ff;
+}
+
+.notification-ongoing:hover {
+    background-color: #eee4ff;
+}
+
+.notification-ongoing-badge {
+    background-color: #6f42c1;
+    color: #fff;
+}
