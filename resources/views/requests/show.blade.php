@@ -489,6 +489,74 @@
             </strong>
 
         </div>
+{{-- Workflow Progress --}}
+<div class="card-body border-bottom">
+
+    @php
+        $workflowSteps = [
+            'Incoming',
+            'Assigned',
+            'Ongoing',
+            'Completed',
+            'Archived',
+        ];
+
+        $workflowOrder = [
+            'Incoming' => 0,
+            'Assigned' => 1,
+            'Ongoing' => 2,
+            'Completed' => 3,
+            'Archived' => 4,
+        ];
+
+        $currentStep = $workflowOrder[$documentRequest->status] ?? 0;
+    @endphp
+
+    <div class="workflow-progress">
+
+        @foreach($workflowSteps as $index => $step)
+
+            @php
+                $stepIndex = $workflowOrder[$step];
+
+                if ($stepIndex < $currentStep) {
+                    $stepState = 'completed';
+                } elseif ($stepIndex === $currentStep) {
+                    $stepState = 'current';
+                } else {
+                    $stepState = 'upcoming';
+                }
+            @endphp
+
+            <div class="workflow-step {{ $stepState }}">
+
+                <div class="workflow-circle">
+
+                    @if($stepState === 'completed')
+                        <i class="bi bi-check"></i>
+                    @else
+                        {{ $index + 1 }}
+                    @endif
+
+                </div>
+
+                <div class="workflow-label">
+                    {{ $step }}
+                </div>
+
+            </div>
+
+            @if(!$loop->last)
+                <div class="workflow-line
+                    {{ $stepIndex < $currentStep ? 'completed' : '' }}">
+                </div>
+            @endif
+
+        @endforeach
+
+    </div>
+
+</div>
 
         <div class="card-body">
 
@@ -530,7 +598,106 @@
 
                 </div>
 
+
             </div>
+
+            {{-- Approval Status --}}
+<div class="mt-3 mb-3">
+
+    <label class="text-muted">
+        Approval Status
+    </label>
+
+    @php
+        $approvalColor = match($documentRequest->approval_status) {
+            'Pending' => 'warning',
+            'Approved' => 'success',
+            'Declined' => 'danger',
+            'Cancelled' => 'secondary',
+            default => 'dark',
+        };
+
+        $approvalIcon = match($documentRequest->approval_status) {
+            'Pending' => 'hourglass-split',
+            'Approved' => 'check-circle-fill',
+            'Declined' => 'x-circle-fill',
+            'Cancelled' => 'slash-circle-fill',
+            default => 'question-circle',
+        };
+    @endphp
+
+    <div>
+        <span class="badge bg-{{ $approvalColor }} fs-6">
+            <i class="bi bi-{{ $approvalIcon }} me-1"></i>
+            {{ $documentRequest->approval_status }}
+        </span>
+    </div>
+
+</div>
+
+{{-- Approval Decision Details --}}
+@if(
+    $documentRequest->approval_status !== 'Pending' &&
+    $documentRequest->approval_reviewed_by
+)
+
+    <div class="border rounded p-3 mb-3 approval-decision-box approval-{{ strtolower($documentRequest->approval_status) }}">
+
+        <div class="small fw-semibold mb-2">
+    @if($documentRequest->approval_status === 'Approved')
+        <i class="bi bi-check-circle-fill text-success me-1"></i>
+    @elseif($documentRequest->approval_status === 'Declined')
+        <i class="bi bi-x-circle-fill text-danger me-1"></i>
+    @elseif($documentRequest->approval_status === 'Cancelled')
+        <i class="bi bi-slash-circle-fill text-secondary me-1"></i>
+    @endif
+
+    Approval Decision
+</div>
+
+        <div class="mb-2">
+
+            <label class="small text-muted d-block">
+                Reviewed By
+            </label>
+
+            <div class="fw-semibold">
+                {{ $documentRequest->approvalReviewer?->name ?? '-' }}
+            </div>
+
+        </div>
+
+        <div class="mb-2">
+
+            <label class="small text-muted d-block">
+                Reviewed On
+            </label>
+
+            <div class="fw-semibold">
+                {{ optional($documentRequest->approval_reviewed_at)->format('M d, Y h:i A') ?? '-' }}
+            </div>
+
+        </div>
+
+        @if($documentRequest->approval_review_note)
+
+            <div>
+
+                <label class="small text-muted d-block">
+                    {{ $documentRequest->approval_status === 'Approved' ? 'Review Note' : 'Reason' }}
+                </label>
+
+                <div class="small">
+                    {{ $documentRequest->approval_review_note }}
+                </div>
+
+            </div>
+
+        @endif
+
+    </div>
+
+@endif
 
             @if($documentRequest->assignedTo)
 
@@ -1999,8 +2166,13 @@
 
     @forelse($documentRequest->activityLogs as $activity)
 
-        @php
+       @php
     $markerClass = match($activity->action) {
+        'Request Approved' => 'activity-marker-success',
+        'Request Declined' => 'activity-marker-danger',
+        'Request Cancelled' => 'activity-marker-secondary',
+        'Request Restored for Approval' => 'activity-marker-warning',
+
         'Assigned' => 'activity-marker-primary',
         'Started' => 'activity-marker-primary',
         'Completed' => 'activity-marker-success',
@@ -2020,6 +2192,22 @@
             <div class="activity-marker {{ $markerClass }}">
 
                 @switch($activity->action)
+
+                    @case('Request Approved')
+    <i class="bi bi-check-circle-fill"></i>
+    @break
+
+@case('Request Declined')
+    <i class="bi bi-x-circle-fill"></i>
+    @break
+
+@case('Request Cancelled')
+    <i class="bi bi-slash-circle-fill"></i>
+    @break
+
+@case('Request Restored for Approval')
+    <i class="bi bi-arrow-counterclockwise"></i>
+    @break
 
                     @case('Assigned')
                         <i class="bi bi-person-check"></i>
@@ -2131,6 +2319,22 @@
 
     <style>
 
+        .approval-decision-box {
+    border-left-width: 4px !important;
+}
+
+.approval-decision-box.approval-approved {
+    border-left-color: #198754 !important;
+}
+
+.approval-decision-box.approval-declined {
+    border-left-color: #dc3545 !important;
+}
+
+.approval-decision-box.approval-cancelled {
+    border-left-color: #6c757d !important;
+}
+
     .activity-timeline {
         position: relative;
         padding-left: 10px;
@@ -2184,6 +2388,91 @@
         box-shadow: 0 0 0 4px #fff;
     }
 
+.workflow-progress {
+    display: flex;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.workflow-step {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+}
+
+.workflow-circle {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border: 2px solid #dee2e6;
+    background: #fff;
+    color: #6c757d;
+}
+
+.workflow-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6c757d;
+    white-space: nowrap;
+}
+
+.workflow-line {
+    flex: 1 1 0;
+    height: 3px;
+    background: #dee2e6;
+    margin-top: 17px;
+    min-width: 10px;
+}
+
+.workflow-step.completed .workflow-circle {
+    background: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+
+.workflow-step.completed .workflow-label {
+    color: #198754;
+}
+
+.workflow-line.completed {
+    background: #198754;
+}
+
+.workflow-step.current .workflow-circle {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+}
+
+.workflow-step.current .workflow-label {
+    color: #0d6efd;
+}
+
+.workflow-step.upcoming .workflow-circle {
+    background: #f8f9fa;
+}
+
+@media (max-width: 576px) {
+
+    .workflow-step {
+        min-width: 65px;
+    }
+
+    .workflow-label {
+        font-size: 0.7rem;
+    }
+
+    .workflow-line {
+        min-width: 10px;
+    }
+
+}
     /* Marker colors */
     .activity-marker-primary {
         background: #0d6efd;
@@ -2196,6 +2485,14 @@
     .activity-marker-secondary {
         background: #6c757d;
     }
+    .activity-marker-danger {
+    background: #dc3545;
+}
+
+.activity-marker-warning {
+    background: #ffc107;
+    color: #212529;
+}
 
     /* Content */
     .activity-content {
@@ -2254,24 +2551,24 @@
     }
 
     /* Mobile */
-    @media (max-width: 768px) {
+    @media (max-width: 576px) {
 
-        .activity-header {
-            display: block;
-        }
-
-        .activity-time {
-            display: block;
-            margin-top: 3px;
-        }
-
-        .activity-user {
-            display: block;
-            margin-left: 0;
-            margin-top: 2px;
-        }
-
+    .workflow-label {
+        font-size: 0.65rem;
     }
+
+    .workflow-circle {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
+    .workflow-line {
+        margin-top: 15px;
+        min-width: 5px;
+    }
+
+}
 
 </style>
 

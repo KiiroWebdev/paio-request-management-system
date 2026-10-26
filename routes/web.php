@@ -17,6 +17,7 @@ use App\Http\Controllers\AttachmentDeletionRequestController;
 use App\Http\Controllers\RequestActionRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestApprovalController;
+use App\Http\Controllers\DashboardReportController;
 
 
 /*
@@ -41,6 +42,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 
+    Route::get('/dashboard/report', [DashboardReportController::class, 'pdf'])
+    ->name('dashboard.report');
 /*
 |--------------------------------------------------------------------------
 | Authenticated + Active Users

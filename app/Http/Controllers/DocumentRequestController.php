@@ -250,6 +250,8 @@ public function create()
         'contact',
         'services',
         'assignedTo',
+        'approvalReviewer',
+        'activityLogs.user',
         'answers.field.fieldType',
         'answers.field.options',
     ]);

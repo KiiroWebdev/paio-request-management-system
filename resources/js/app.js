@@ -4,3 +4,5 @@ import './sidebar';
 import './request-wizard';
 import './service-fields';
 import './datatables';
+import './dashboard';
+

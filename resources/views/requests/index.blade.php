@@ -391,6 +391,8 @@
 
                         <th>Date Received</th>
 
+                        <th>Subject</th>
+
                         <th>Organization</th>
 
                         <th>Requestor</th>
@@ -446,6 +448,25 @@
             @endif
 
         </td>
+
+        {{-- Subject --}}
+<td>
+
+    @if($request->subject)
+
+        <div class="fw-semibold">
+            {{ $request->subject }}
+        </div>
+
+    @else
+
+        <span class="text-muted">
+            -
+        </span>
+
+    @endif
+
+</td>
 
         {{-- Organization --}}
         <td>
