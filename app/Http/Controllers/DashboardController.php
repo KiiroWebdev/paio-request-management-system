@@ -731,6 +731,16 @@ elseif (
         | Dashboard View
         |--------------------------------------------------------------------------
         */
+        $defaultVisibleStats = [
+    'incoming',
+    'ongoing',
+    'completed',
+];
+
+$preference = auth()->user()->dashboardPreference;
+
+$visibleStats = $preference?->visible_stats
+    ?? $defaultVisibleStats;
 
         return view('dashboard.index', compact(
 
@@ -773,6 +783,7 @@ elseif (
             'range',
 'startDate',
 'endDate',
+'visibleStats',
 
         ));
     }

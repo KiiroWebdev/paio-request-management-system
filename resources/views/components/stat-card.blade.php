@@ -5,7 +5,7 @@
     'href' => null,
 ])
 
-<div class="col-lg-4 col-xl-3">
+<div class="col-12 col-sm-6 col-xl-4">
 
     @if($href)
 

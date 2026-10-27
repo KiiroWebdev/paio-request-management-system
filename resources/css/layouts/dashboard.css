@@ -28,3 +28,226 @@
     outline: 2px solid #0d6efd;
     outline-offset: 3px;
 }
+
+/* =====================================================
+   PAIO DASHBOARD METRIC CARDS
+===================================================== */
+
+.dashboard-metric-card,
+.stat-card {
+    background: #ffffff;
+    border: 1px solid rgba(83, 142, 107, 0.15) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 3px 10px rgba(5, 91, 37, 0.06) !important;
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+/* Card hover */
+.stat-card:hover,
+.dashboard-metric-link:hover .dashboard-metric-card {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(5, 91, 37, 0.12) !important;
+    border-color: rgba(83, 142, 107, 0.35) !important;
+}
+
+/* Metric labels */
+.stat-card small {
+    color: #538e6b !important;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+/* Metric numbers */
+.stat-card h2 {
+    color: #055b25;
+    font-size: 1.8rem;
+    line-height: 1.2;
+}
+
+/* Icon container */
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border-radius: 12px;
+    background: #e4efe5;
+    color: #055b25;
+    font-size: 1.35rem;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+/* Icon hover */
+.stat-card:hover .stat-icon {
+    background: #055b25;
+    color: #ffffff;
+}
+
+/* Keyboard accessibility */
+.stat-card a:focus-visible,
+.dashboard-metric-link:focus-visible {
+    outline: 3px solid #d2ae47;
+    outline-offset: 3px;
+}
+
+/* Dashboard section headings */
+.content-area h2,
+.content-area h5 {
+    color: #055b25;
+}
+
+/* Keep cards comfortable on smaller screens */
+@media (max-width: 576px) {
+    .stat-card h2 {
+        font-size: 1.55rem;
+    }
+
+    .stat-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.2rem;
+    }
+}
+/* Softer PAIO dashboard theme */
+
+body {
+    background-color: #EDF2EB;
+}
+
+.main-content {
+    background-color: #EDF2EB;
+}
+
+.content-area h2,
+.content-area h5 {
+    color: #245B3B;
+}
+
+.stat-card {
+    background: #FFFFFF;
+    border-color: #DFE7DE !important;
+    box-shadow: 0 2px 7px rgba(36, 91, 59, 0.06) !important;
+}
+
+.stat-card small {
+    color: #537A61 !important;
+}
+
+.stat-card h2 {
+    color: #245B3B;
+}
+
+.stat-icon {
+    background: #E7EEE6;
+    color: #367B50;
+}
+
+.stat-card:hover .stat-icon {
+    background: #245B3B;
+    color: #FFFFFF;
+}
+
+.dashboard-metric-link:hover .dashboard-metric-card,
+.stat-card:hover {
+    box-shadow: 0 5px 14px rgba(36, 91, 59, 0.10) !important;
+}
+/* PAIO Dashboard Quick Access Modules */
+.paio-module-link {
+    display: block;
+    height: 100%;
+    color: inherit;
+    text-decoration: none;
+}
+
+.paio-module-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 112px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #dfe7de;
+    border-radius: 14px;
+    box-shadow: 0 2px 7px rgba(36, 91, 59, 0.05);
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease,
+                border-color 0.2s ease;
+}
+
+.paio-module-card:hover {
+    transform: translateY(-3px);
+    border-color: #9bb9a2;
+    box-shadow: 0 7px 18px rgba(36, 91, 59, 0.10);
+}
+
+.paio-module-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    color: #245b3b;
+    background: #e7eee6;
+    border-radius: 12px;
+    font-size: 1.35rem;
+}
+
+.paio-module-card h6 {
+    margin: 0 0 5px;
+    color: #245b3b;
+    font-weight: 600;
+}
+
+.paio-module-card p {
+    margin: 0;
+    color: #537a61;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.paio-module-arrow {
+    color: #9bb9a2;
+    margin-left: auto;
+}
+
+.paio-module-link:focus-visible {
+    outline: 3px solid #c5a64a;
+    outline-offset: 3px;
+    border-radius: 14px;
+}
+
+@media (max-width: 575.98px) {
+    .paio-module-card {
+        min-height: 96px;
+        padding: 15px;
+        gap: 12px;
+    }
+
+    .paio-module-icon {
+        width: 42px;
+        height: 42px;
+        font-size: 1.2rem;
+    }
+}
+/* Improve dashboard statistic icon contrast */
+.stat-icon {
+    background-color: #E7EEE6 !important;
+    color: #245B3B !important;
+}
+
+.stat-icon i {
+    color: inherit !important;
+}
+
+.stat-card:hover .stat-icon {
+    background-color: #245B3B !important;
+    color: #FFFFFF !important;
+}

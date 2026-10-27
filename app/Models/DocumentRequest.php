@@ -48,6 +48,8 @@ class DocumentRequest extends Model
         'approval_reviewed_at',
         
         'approval_review_note',
+        
+        'approval_closed_at',
 
         'priority',
 

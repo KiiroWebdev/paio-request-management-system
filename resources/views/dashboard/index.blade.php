@@ -1,894 +1,331 @@
 @extends('layouts.master')
 
 @section('content')
-
-<div class="container-fluid">
-
-    {{-- =========================================================
-         DASHBOARD TITLE
-    ========================================================== --}}
-
-    <h2 class="mb-4">
-        Dashboard
-    </h2>
-
-   
-
-    {{-- =========================================================
-         REQUEST OVERVIEW
-    ========================================================== --}}
-
-    <h5 class="mb-3">
-        <i class="bi bi-bar-chart-line me-2"></i>
-        Request Overview
-    </h5>
-
-    <div class="row g-4">
-
-        {{-- Total Requests --}}
-        <x-stat-card
-            title="Total Requests"
-            :value="$totalRequestCount"
-            icon="bi-files"
-            :href="route('requests.index')"
-        />
-
-        {{-- Incoming --}}
-        <x-stat-card
-            title="Incoming"
-            :value="$incomingCount"
-            icon="bi-inbox"
-            :href="route('requests.incoming')"
-        />
-
-        {{-- Assigned --}}
-        <x-stat-card
-            title="Assigned"
-            :value="$assignedCount"
-            icon="bi-person-check"
-            :href="url('/requests?status=Assigned')"
-        />
-
-        {{-- Ongoing --}}
-        <x-stat-card
-            title="Ongoing"
-            :value="$ongoingCount"
-            icon="bi-hourglass-split"
-            :href="route('requests.ongoing')"
-        />
-
-        {{-- Completed --}}
-        <x-stat-card
-            title="Completed"
-            :value="$completedCount"
-            icon="bi-check-circle"
-            :href="route('requests.completed')"
-        />
-
-        {{-- Archived --}}
-        <x-stat-card
-            title="Archived"
-            :value="$archivedCount"
-            icon="bi-archive"
-            :href="route('requests.archive.index')"
-        />
-
-    </div>
-
-
-    {{-- =========================================================
-         MY WORK
-    ========================================================== --}}
-
-    <h5 class="mt-5 mb-3">
-        <i class="bi bi-person-workspace me-2"></i>
-        My Work
-    </h5>
-
-    <div class="row g-4">
-
-        {{-- My Assigned --}}
-        <x-stat-card
-            title="Assigned to Me"
-            :value="$myAssignedCount"
-            icon="bi-person-check-fill"
-            :href="url('/requests?assigned_to=' . auth()->id())"
-        />
-
-        {{-- My Ongoing --}}
-        <x-stat-card
-            title="My Ongoing"
-            :value="$myOngoingCount"
-            icon="bi-arrow-repeat"
-            :href="url('/requests?assigned_to=' . auth()->id() . '&status=Ongoing')"
-        />
-
-        {{-- High / Urgent --}}
-        <x-stat-card
-            title="High / Urgent"
-            :value="$highPriorityCount"
-            icon="bi-exclamation-triangle"
-            :href="url('/requests?high_priority=1')"
-        />
-
-        {{-- Unassigned --}}
-        <x-stat-card
-            title="Unassigned"
-            :value="$unassignedCount"
-            icon="bi-person-x"
-            :href="url('/requests?unassigned=1')"
-        />
-
-    </div>
-
-
-    {{-- =========================================================
-         DUE DATE MONITORING
-    ========================================================== --}}
-
-    <h5 class="mt-5 mb-3">
-        <i class="bi bi-calendar-event me-2"></i>
-        Due Date Monitoring
-    </h5>
-
-    <div class="row g-4">
-
-        {{-- Overdue --}}
-        <x-stat-card
-            title="Overdue"
-            :value="$overdueCount"
-            icon="bi-exclamation-circle"
-            :href="url('/requests?overdue=1')"
-        />
-
-        {{-- Due Today --}}
-        <x-stat-card
-            title="Due Today"
-            :value="$dueTodayCount"
-            icon="bi-calendar-check"
-            :href="url('/requests?due_today=1')"
-        />
-
-        {{-- Due Soon --}}
-        <x-stat-card
-            title="Due Soon"
-            :value="$dueSoonCount"
-            icon="bi-calendar-event"
-            :href="url('/requests?due_soon=1')"
-        />
-
-    </div>
-
-
-    {{-- =========================================================
-         SYSTEM OVERVIEW
-    ========================================================== --}}
-
-    <h5 class="mt-5 mb-3">
-        <i class="bi bi-speedometer2 me-2"></i>
-        System Overview
-    </h5>
-
-    <div class="row g-4">
-
-        {{-- Users --}}
-        <x-stat-card
-            title="Users"
-            :value="$userCount"
-            icon="bi-people"
-            :href="url('/users')"
-        />
-
-        {{-- Organizations --}}
-        <x-stat-card
-            title="Organizations"
-            :value="$organizationCount"
-            icon="bi-building"
-            :href="url('/organizations')"
-        />
-
-    </div>
-
-
-    {{-- =========================================================
-         ANALYTICS
-    ========================================================== --}}
-
-<div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-end gap-3 mt-5 mb-3">
-
-    {{-- Analytics Heading --}}
-    <div>
-
-        <h5 class="mb-1">
-            <i class="bi bi-bar-chart-line me-2"></i>
-            Request Analytics
-        </h5>
-
-        <small class="text-muted">
-            Analyze request trends and distribution.
-        </small>
-
-    </div>
-
-
-    {{-- Analytics Controls --}}
-    <div class="d-flex flex-column flex-md-row align-items-md-end gap-2">
-
-        {{-- Date Range Filter --}}
-        <form
-            method="GET"
-            action="{{ route('dashboard') }}"
-            class="d-flex flex-column flex-md-row align-items-md-end gap-2"
-        >
-
-            <div>
-
-                <label class="form-label small text-muted mb-1">
-                    Date Range
-                </label>
-
-                <select
-                    name="range"
-                    id="dashboardRange"
-                    class="form-select form-select-sm"
-                >
-
-                    <option value="all"
-                        {{ $range === 'all' ? 'selected' : '' }}>
-                        All Time
-                    </option>
-
-                    <option value="month"
-                        {{ $range === 'month' ? 'selected' : '' }}>
-                        This Month
-                    </option>
-
-                    <option value="3months"
-                        {{ $range === '3months' ? 'selected' : '' }}>
-                        Last 3 Months
-                    </option>
-
-                    <option value="year"
-                        {{ $range === 'year' ? 'selected' : '' }}>
-                        This Year
-                    </option>
-
-                    <option value="custom"
-                        {{ $range === 'custom' ? 'selected' : '' }}>
-                        Custom Range
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            {{-- Custom Start Date --}}
-            <div
-                id="customStartDate"
-                class="{{ $range === 'custom' ? '' : 'd-none' }}"
-            >
-
-                <label class="form-label small text-muted mb-1">
-                    From
-                </label>
-
-                <input
-                    type="date"
-                    name="start_date"
-                    value="{{ request('start_date') }}"
-                    class="form-control form-control-sm"
-                >
-
-            </div>
-
-
-            {{-- Custom End Date --}}
-            <div
-                id="customEndDate"
-                class="{{ $range === 'custom' ? '' : 'd-none' }}"
-            >
-
-                <label class="form-label small text-muted mb-1">
-                    To
-                </label>
-
-                <input
-                    type="date"
-                    name="end_date"
-                    value="{{ request('end_date') }}"
-                    class="form-control form-control-sm"
-                >
-
-            </div>
-
-
-            {{-- Apply --}}
-            <button
-                type="submit"
-                class="btn btn-primary btn-sm"
-            >
-                <i class="bi bi-funnel me-1"></i>
-                Apply
-            </button>
-
-
-            {{-- Reset --}}
-            <a
-                href="{{ route('dashboard') }}"
-                class="btn btn-outline-secondary btn-sm"
-            >
-                <i class="bi bi-arrow-counterclockwise me-1"></i>
-                Reset
-            </a>
-
-        </form>
-
-
-        {{-- PDF Report --}}
-        <a
-            href="{{ route('dashboard.report', request()->query()) }}"
-            class="btn btn-outline-danger btn-sm"
-            target="_blank"
-        >
-            <i class="bi bi-file-earmark-pdf me-1"></i>
-            PDF Report
+<div class="container-fluid paio-dashboard">
+
+    {{-- Welcome Header --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Welcome to PAIO</h2>
+            <p class="text-muted mb-0">
+                Public Affairs and Information Office Request Management System
+            </p>
+        </div>
+
+        <a href="{{ route('request-wizard.services') }}"
+           class="btn btn-success">
+            <i class="bi bi-plus-circle me-2"></i>New Request
         </a>
-
     </div>
 
-</div>
+    {{-- Quick Overview --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0 fw-semibold">Request Overview</h5>
 
-
-    {{-- =========================================================
-         ROW 1 — STATUS & MONTHLY
-    ========================================================== --}}
-
-    <div class="row g-4">
-
-        {{-- Request Status --}}
-        <div class="col-lg-5">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-header bg-white border-0 pt-4 px-4">
-
-                    <h6 class="mb-1 fw-semibold">
-                        Request Status
-                    </h6>
-
-                    <small class="text-muted">
-                        Current distribution of requests
-                    </small>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div style="height: 300px;">
-
-                        <canvas
-                            id="requestStatusChart"
-                            data-chart='@json($statusChart)'
-                        ></canvas>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Monthly Request Volume --}}
-        <div class="col-lg-7">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-header bg-white border-0 pt-4 px-4">
-
-                    <h6 class="mb-1 fw-semibold">
-    Request Volume
-</h6>
-
-<small class="text-muted">
-    @if($range === 'month')
-        Requests received during this month
-    @elseif($range === '3months')
-        Requests received over the last 3 months
-    @elseif($range === 'year')
-        Requests received during this year
-    @elseif($range === 'custom' && $startDate && $endDate)
-        Requests received from
-        {{ $startDate->format('M d, Y') }}
-        to
-        {{ $endDate->format('M d, Y') }}
-    @else
-        Requests received over the last 12 months
-    @endif
-</small>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div style="height: 300px;">
-
-                        <canvas
-                            id="monthlyRequestChart"
-                            data-labels='@json($monthlyRequestLabels)'
-                            data-counts='@json($monthlyRequestCounts)'
-                        ></canvas>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
+        <button type="button"
+        class="btn btn-sm btn-outline-success"
+        data-bs-toggle="modal"
+        data-bs-target="#customizeStatsModal">
+    <i class="bi bi-sliders me-1"></i>
+    Customize Statistics
+</button>
     </div>
 
 
-    {{-- =========================================================
-         ROW 2 — PRIORITY & REQUEST TYPE
-    ========================================================== --}}
 
-    <div class="row g-4 mt-1">
-
-        {{-- Priority Distribution --}}
-        <div class="col-lg-5">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-header bg-white border-0 pt-4 px-4">
-
-                    <h6 class="mb-1 fw-semibold">
-                        Priority Distribution
-                    </h6>
-
-                    <small class="text-muted">
-                        Requests grouped by priority
-                    </small>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div style="height: 300px;">
-
-                        <canvas
-                            id="priorityChart"
-                            data-chart='@json($priorityChart)'
-                        ></canvas>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- Request Type Distribution --}}
-        <div class="col-lg-7">
-
-            <div class="card border-0 shadow-sm h-100">
-
-                <div class="card-header bg-white border-0 pt-4 px-4">
-
-                    <h6 class="mb-1 fw-semibold">
-                        Request Type Distribution
-                    </h6>
-
-                    <small class="text-muted">
-                        Requests grouped by request type
-                    </small>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div style="height: 300px;">
-
-                        <canvas
-                            id="requestTypeChart"
-                            data-chart='@json($requestTypeChart)'
-                        ></canvas>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    {{-- =========================================================
-         ROW 3 — SERVICES
-    ========================================================== --}}
-
-    <div class="row g-4 mt-1">
-
-        <div class="col-12">
-
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-header bg-white border-0 pt-4 px-4">
-
-                    <h6 class="mb-1 fw-semibold">
-                        Services Requested
-                    </h6>
-
-                    <small class="text-muted">
-                        Top services requested
-                    </small>
-
-                </div>
-
-                <div class="card-body">
-
-                    <div style="height: 320px;">
-
-                        <canvas
-                            id="servicesChart"
-                            data-chart='@json($servicesChart)'
-                        ></canvas>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    {{-- =========================================================
-     ROW 4 — ORGANIZATIONS
-========================================================== --}}
-
-<div class="row g-4 mt-1">
-
-    <div class="col-12">
-
-        <div class="card border-0 shadow-sm">
-
-            <div class="card-header bg-white border-0 pt-4 px-4">
-
-                <h6 class="mb-1 fw-semibold">
-                    Organizations Requested
-                </h6>
-
-                <small class="text-muted">
-                    Top organizations submitting requests
-                </small>
-
-            </div>
-
-            <div class="card-body">
-
-                <div style="height: 320px;">
-
-                    <canvas
-                        id="organizationsChart"
-                        data-chart='@json($organizationsChart)'
-                    ></canvas>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-    {{-- =========================================================
-         PERFORMANCE SUMMARY
-    ========================================================== --}}
-
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-2 mt-5 mb-3">
-
-    <div>
-
-        <h5 class="mb-1">
-            <i class="bi bi-speedometer2 me-2"></i>
-            Performance Summary
-        </h5>
-
-        <small class="text-muted">
-            Performance metrics for the selected period.
-        </small>
-
-    </div>
-
-
-    <div>
-
-        @if($range === 'all')
-
-            <span class="badge bg-light text-dark border">
-    <i class="bi bi-calendar-range me-1"></i>
-    All Time
-</span>
-
-        @elseif($range === 'month')
-
-            <span class="badge bg-light text-dark border">
-                <i class="bi bi-calendar-range me-1"></i>
-                This Month
-            </span>
-
-        @elseif($range === '3months')
-
-            <span class="badge bg-light text-dark border">
-                <i class="bi bi-calendar-range me-1"></i>
-                Last 3 Months
-            </span>
-
-        @elseif($range === 'year')
-
-            <span class="badge bg-light text-dark border">
-                <i class="bi bi-calendar-range me-1"></i>
-                This Year
-            </span>
-
-        @elseif($range === 'custom' && $startDate && $endDate)
-
-            <span class="badge bg-light text-dark border">
-                <i class="bi bi-calendar-range me-1"></i>
-                {{ $startDate->format('M d, Y') }}
-                –
-                {{ $endDate->format('M d, Y') }}
-            </span>
-
+{{-- Customizable Dashboard Statistics --}}
+<div class="mb-4">
+    <div class="row g-3">
+
+        @if(in_array('incoming', $visibleStats))
+            <x-stat-card
+                title="Incoming"
+                :value="$incomingCount"
+                icon="bi-inbox"
+                :href="route('requests.incoming')"
+            />
+        @endif
+
+        @if(in_array('ongoing', $visibleStats))
+            <x-stat-card
+                title="Ongoing"
+                :value="$ongoingCount"
+                icon="bi-hourglass-split"
+                :href="route('requests.ongoing')"
+            />
+        @endif
+
+        @if(in_array('completed', $visibleStats))
+            <x-stat-card
+                title="Completed"
+                :value="$completedCount"
+                icon="bi-check-circle"
+                :href="route('requests.completed')"
+            />
+        @endif
+
+        @if(in_array('total', $visibleStats))
+            <x-stat-card
+                title="Total Requests"
+                :value="$totalRequestCount"
+                icon="bi-files"
+                :href="route('requests.index')"
+            />
+        @endif
+
+        @if(in_array('assigned', $visibleStats))
+            <x-stat-card
+                title="Assigned"
+                :value="$assignedCount"
+                icon="bi-person-check"
+                :href="url('/requests?status=Assigned')"
+            />
+        @endif
+
+        @if(in_array('archived', $visibleStats))
+            <x-stat-card
+                title="Archived"
+                :value="$archivedCount"
+                icon="bi-archive"
+                :href="route('requests.archive.index')"
+            />
         @endif
 
     </div>
-
 </div>
 
-    <div class="row g-4">
+{{-- Customize Statistics Modal --}}
+<div class="modal fade"
+     id="customizeStatsModal"
+     tabindex="-1"
+     aria-labelledby="customizeStatsModalLabel"
+     aria-hidden="true">
 
-        {{-- Completion Rate --}}
-        <div class="col-md-6 col-xl-3">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
-            <a
-                href="{{ route('requests.completed') }}"
-                class="dashboard-metric-link"
-            >
+            <form method="POST"
+                  action="{{ route('dashboard.preferences.update') }}">
 
-                <div class="card border-0 shadow-sm h-100 dashboard-metric-card">
+                @csrf
 
-                    <div class="card-body">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title fw-semibold"
+                            id="customizeStatsModalLabel">
+                            Customize Statistics
+                        </h5>
+                        <small class="text-muted">
+                            Choose which cards appear on your dashboard.
+                        </small>
+                    </div>
 
-                        <div class="d-flex align-items-center justify-content-between">
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
 
-                            <div>
+                <div class="modal-body">
 
-                                <div class="small text-muted mb-2">
-                                    Completion Rate
-                                </div>
+                    @php
+                        $statOptions = [
+                            'incoming' => 'Incoming',
+                            'ongoing' => 'Ongoing',
+                            'completed' => 'Completed',
+                            'total' => 'Total Requests',
+                            'assigned' => 'Assigned',
+                            'archived' => 'Archived',
+                        ];
+                    @endphp
 
-                                <div class="fs-2 fw-bold text-dark">
-                                    {{ number_format($completionRate, 1) }}%
-                                </div>
+                    @foreach($statOptions as $key => $label)
+                        <div class="form-check py-2">
+                            <input
+                                class="form-check-input"
+                                type="checkbox"
+                                name="visible_stats[]"
+                                value="{{ $key }}"
+                                id="stat-{{ $key }}"
+                                {{ in_array($key, old('visible_stats', $visibleStats)) ? 'checked' : '' }}
+                            >
 
-                                <small class="text-muted">
-                                    {{ $completedCount }}
-                                    of
-                                    {{ $totalRequestCount }}
-                                    {{ $totalRequestCount === 1 ? 'request' : 'requests' }}
-                                    completed
-                                </small>
-
-                            </div>
-
-                            <div class="text-success fs-2">
-                                <i class="bi bi-check-circle"></i>
-                            </div>
-
+                            <label class="form-check-label"
+                                   for="stat-{{ $key }}">
+                                {{ $label }}
+                            </label>
                         </div>
+                    @endforeach
 
+                    <div class="small text-muted mt-2">
+                        Select at least one statistic.
+                        Your preferences will be saved to your account.
                     </div>
 
                 </div>
 
-            </a>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check2 me-1"></i>
+                        Save Preferences
+                    </button>
+                </div>
+
+            </form>
 
         </div>
+    </div>
+</div>
 
 
-        {{-- Overdue Rate --}}
-        <div class="col-md-6 col-xl-3">
+    {{-- Main Modules --}}
+    <div class="mb-3">
+        <h5 class="fw-semibold mb-1">Quick Access</h5>
+        <p class="text-muted small mb-0">
+            Select a module to continue.
+        </p>
+    </div>
 
-            <a
-                href="{{ url('/requests?overdue=1') }}"
-                class="dashboard-metric-link"
-            >
+    <div class="row g-3">
 
-                <div class="card border-0 shadow-sm h-100 dashboard-metric-card">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center justify-content-between">
-
-                            <div>
-
-                                <div class="small text-muted mb-2">
-                                    Overdue Rate
-                                </div>
-
-                                <div class="fs-2 fw-bold text-dark">
-                                    {{ number_format($overdueRate, 1) }}%
-                                </div>
-
-                                <small class="text-muted">
-                                    {{ $overdueCount }}
-                                    overdue active
-                                    {{ $overdueCount === 1 ? 'request' : 'requests' }}
-                                </small>
-
-                            </div>
-
-                            <div class="text-danger fs-2">
-                                <i class="bi bi-exclamation-circle"></i>
-                            </div>
-
-                        </div>
-
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('requests.index') }}"
+               class="paio-module-link">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-folder2-open"></i>
                     </div>
-
+                    <div class="flex-grow-1">
+                        <h6>Request Management</h6>
+                        <p>View and manage document requests.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
                 </div>
-
             </a>
-
         </div>
 
-
-        {{-- Average Processing Time --}}
-        <div class="col-md-6 col-xl-3">
-
-            <a
-                href="{{ route('requests.completed') }}"
-                class="dashboard-metric-link"
-            >
-
-                <div class="card border-0 shadow-sm h-100 dashboard-metric-card">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center justify-content-between">
-
-                            <div>
-
-                                <div class="small text-muted mb-2">
-                                    Avg. Processing Time
-                                </div>
-
-                                <div class="fs-2 fw-bold text-dark">
-                                    {{ number_format($averageProcessingDays, 1) }}
-                                </div>
-
-                                <small class="text-muted">
-                                    {{ $averageProcessingDays === 1.0 ? 'day' : 'days' }}
-                                    per completed request
-                                </small>
-
-                            </div>
-
-                            <div class="text-primary fs-2">
-                                <i class="bi bi-clock-history"></i>
-                            </div>
-
-                        </div>
-
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('request-approvals.index') }}"
+               class="paio-module-link">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-clipboard-check"></i>
                     </div>
-
+                    <div class="flex-grow-1">
+                        <h6>Request Approvals</h6>
+                        <p>Review requests requiring approval.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
                 </div>
-
             </a>
-
         </div>
 
-
-        {{-- Active Requests --}}
-        <div class="col-md-6 col-xl-3">
-
-            <a
-                href="{{ route('requests.index') }}"
-                class="dashboard-metric-link"
-            >
-
-                <div class="card border-0 shadow-sm h-100 dashboard-metric-card">
-
-                    <div class="card-body">
-
-                        <div class="d-flex align-items-center justify-content-between">
-
-                            <div>
-
-                                <div class="small text-muted mb-2">
-                                    Active Requests
-                                </div>
-
-                                <div class="fs-2 fw-bold text-dark">
-                                    {{ $activeRequestCount }}
-                                </div>
-
-                                <small class="text-muted">
-                                    Currently being processed
-                                </small>
-
-                            </div>
-
-                            <div class="text-warning fs-2">
-                                <i class="bi bi-hourglass-split"></i>
-                            </div>
-
-                        </div>
-
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('requests.archive.index') }}"
+               class="paio-module-link">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-archive"></i>
                     </div>
-
+                    <div class="flex-grow-1">
+                        <h6>Archives</h6>
+                        <p>Access archived requests and records.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
                 </div>
-
             </a>
+        </div>
 
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('services.index') }}"
+               class="paio-module-link">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-grid"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Services</h6>
+                        <p>View available services and configurations.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('organizations.index') }}"
+               class="paio-module-link">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Organizations</h6>
+                        <p>Manage organizations submitting requests.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('contacts.index') }}"
+               class="paio-module-link">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-person-lines-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Contacts</h6>
+                        <p>Access contact information.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
+                </div>
+            </a>
+        </div>
+
+        @if(auth()->user()->can('admin'))
+            <div class="col-12 col-sm-6 col-xl-4">
+                <a href="{{ route('users.index') }}"
+                   class="paio-module-link">
+                    <div class="paio-module-card">
+                        <div class="paio-module-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6>User Management</h6>
+                            <p>Manage system users and access.</p>
+                        </div>
+                        <i class="bi bi-chevron-right paio-module-arrow"></i>
+                    </div>
+                </a>
+            </div>
+        @endif
+
+        <div class="col-12 col-sm-6 col-xl-4">
+            <a href="{{ route('dashboard.report') }}"
+               class="paio-module-link"
+               target="_blank"
+               rel="noopener">
+                <div class="paio-module-card">
+                    <div class="paio-module-icon">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6>Reports</h6>
+                        <p>Generate the current PDF dashboard report.</p>
+                    </div>
+                    <i class="bi bi-chevron-right paio-module-arrow"></i>
+                </div>
+            </a>
         </div>
 
     </div>
-
 </div>
-
-@push('scripts')
-
-<script>
-
-document.addEventListener('DOMContentLoaded', function () {
-
-    const rangeSelect = document.getElementById('range');
-
-    const startDate = document.getElementById('customStartDate');
-
-    const endDate = document.getElementById('customEndDate');
-
-
-    function toggleCustomDates() {
-
-        const isCustom =
-            rangeSelect.value === 'custom';
-
-        startDate.style.display =
-            isCustom ? '' : 'none';
-
-        endDate.style.display =
-            isCustom ? '' : 'none';
-
-    }
-
-
-    rangeSelect.addEventListener(
-        'change',
-        toggleCustomDates
-    );
-
-
-    toggleCustomDates();
-
-});
-
-</script>
-
-@endpush
-
 @endsection

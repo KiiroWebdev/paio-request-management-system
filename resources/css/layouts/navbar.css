@@ -35,34 +35,25 @@
 
 /* For Approval */
 
+/* For Approval */
 .notification-approval {
-    background-color: #f3f7ff;
+    background-color: #e4efe5;
 }
 
 .notification-approval:hover {
-    background-color: #e3edff;
-}
-
-/* Assigned to You */
-
-.notification-assigned {
-    background-color: #f0fbff;
-}
-
-.notification-assigned:hover {
-    background-color: #dff5fc;
+    background-color: #d4e6d8;
 }
 
 /* Ongoing */
 .notification-ongoing {
-    background-color: #f8f4ff;
+    background-color: #edf5ef;
 }
 
 .notification-ongoing:hover {
-    background-color: #eee4ff;
+    background-color: #dcebdd;
 }
 
 .notification-ongoing-badge {
-    background-color: #6f42c1;
+    background-color: #34784e;
     color: #fff;
 }

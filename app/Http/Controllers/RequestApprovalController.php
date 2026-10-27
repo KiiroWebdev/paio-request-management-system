@@ -147,6 +147,7 @@ public function index(Request $request)
             'approval_reviewed_by' => auth()->id(),
             'approval_reviewed_at' => now(),
             'approval_review_note' => $validated['approval_review_note'],
+            'approval_closed_at' => now(),
         ]);
 
         ActivityLog::create([
@@ -197,6 +198,7 @@ public function index(Request $request)
             'approval_reviewed_by' => auth()->id(),
             'approval_reviewed_at' => now(),
             'approval_review_note' => $validated['approval_review_note'],
+            'approval_closed_at' => now(),
         ]);
 
         ActivityLog::create([
@@ -254,6 +256,7 @@ public function index(Request $request)
             'approval_reviewed_by' => auth()->id(),
             'approval_reviewed_at' => now(),
             'approval_review_note' => $validated['approval_review_note'],
+            'approval_closed_at' => null,
         ]);
 
         ActivityLog::create([

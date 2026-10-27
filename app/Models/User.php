@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['name', 'email', 'password', 'role', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
@@ -58,5 +59,9 @@ public function requestActionRequests()
 public function reviewedRequestActionRequests()
 {
     return $this->hasMany(RequestActionRequest::class, 'reviewed_by');
+}
+public function dashboardPreference(): HasOne
+{
+    return $this->hasOne(DashboardPreference::class);
 }
 }

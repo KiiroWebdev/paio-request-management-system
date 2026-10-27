@@ -18,6 +18,7 @@ use App\Http\Controllers\RequestActionRequestController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestApprovalController;
 use App\Http\Controllers\DashboardReportController;
+use App\Http\Controllers\DashboardPreferenceController;
 
 
 /*
@@ -27,7 +28,7 @@ use App\Http\Controllers\DashboardReportController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 
@@ -40,6 +41,13 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+Route::post(
+    '/dashboard/preferences',
+    [DashboardPreferenceController::class, 'update']
+)
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard.preferences.update');
 
 
     Route::get('/dashboard/report', [DashboardReportController::class, 'pdf'])
@@ -230,6 +238,17 @@ Route::post(
     | Document Requests
     |--------------------------------------------------------------------------
     */
+    // Kanban Board
+Route::get('/requests/kanban', [
+    \App\Http\Controllers\RequestKanbanController::class,
+    'index',
+])->name('requests.kanban');
+
+// Kanban Drag-and-Drop
+Route::post(
+    '/requests/{documentRequest}/kanban-move',
+    [\App\Http\Controllers\RequestKanbanController::class, 'move']
+)->name('requests.kanban.move');
 
     Route::get(
         '/requests',
