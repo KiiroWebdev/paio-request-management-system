@@ -359,6 +359,37 @@ class ArchivedDocumentController extends Controller
             ->with('success', 'Document moved to deleted archives.');
     }
 
+
+public function trashed(): View
+{
+    $documents = ArchivedDocument::onlyTrashed()
+        ->with('uploadedBy')
+        ->latest('deleted_at')
+        ->paginate(15)
+        ->withQueryString();
+
+    return view('document-archives.trashed', compact('documents'));
+}
+
+public function restore(Request $request, int $id)
+{
+    $document = ArchivedDocument::onlyTrashed()->findOrFail($id);
+
+    $document->restore();
+
+    $this->logActivity(
+        $request,
+        $document,
+        'Restored',
+        'Restored an archived document from the Recycle Bin.'
+    );
+
+    return redirect()
+        ->route('document-archives.show', $document)
+        ->with('success', 'Document restored successfully.');
+}
+
+
     /**
      * Record an archive activity.
      */

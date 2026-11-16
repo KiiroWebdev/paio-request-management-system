@@ -20,13 +20,25 @@
             </p>
         </div>
 
-        <a href="{{ route('document-archives.create') }}"
-           class="btn btn-primary">
+       
+<div class="d-flex gap-2">
 
-            <i class="bi bi-cloud-upload me-1"></i>
-            Upload Document
-
+    @if(auth()->user()->isAdmin())
+        <a href="{{ route('document-archives.trashed') }}"
+           class="btn btn-outline-danger">
+            <i class="bi bi-trash3 me-1"></i>
+            Recycle Bin
         </a>
+    @endif
+
+    <a href="{{ route('document-archives.create') }}"
+       class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>
+        Upload Document
+    </a>
+
+</div>
+
 
     </div>
 

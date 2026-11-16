@@ -593,6 +593,18 @@ Route::delete(
 
             Route::post('/', [ArchivedDocumentController::class, 'store'])
                 ->name('store');
+            
+// Recycle Bin — Admin only
+Route::get('/trashed', [ArchivedDocumentController::class, 'trashed'])
+    ->middleware('admin')
+    ->name('trashed');
+
+// Restore a deleted document — Admin only
+Route::post('/trashed/{id}/restore', [ArchivedDocumentController::class, 'restore'])
+    ->whereNumber('id')
+    ->middleware('admin')
+    ->name('restore');
+
 
             // View document information
             Route::get('/{archivedDocument}', [ArchivedDocumentController::class, 'show'])
