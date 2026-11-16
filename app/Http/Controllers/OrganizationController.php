@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class OrganizationController extends Controller
 {
@@ -63,6 +64,7 @@ class OrganizationController extends Controller
 
     public function store(Request $request)
 {
+    
     $validated = $request->validate([
 
         'name' => 'required|max:255',
@@ -126,7 +128,27 @@ class OrganizationController extends Controller
 
         'short_name' => 'nullable|max:50',
 
-        'type' => 'required|max:100',
+        'type' => [
+    'required',
+    Rule::in([
+        'Department',
+        'Office',
+        'Division',
+        'Section',
+        'Barangay',
+        'National Agency',
+        'GOCC',
+        'School',
+        'University',
+        'Hospital',
+        'Private Company',
+        'NGO',
+        'Peoples Organization',
+        'Media',
+        'Individual',
+        'Other',
+    ]),
+],
 
         'address' => 'nullable',
 

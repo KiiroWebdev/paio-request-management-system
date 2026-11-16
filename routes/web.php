@@ -19,7 +19,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RequestApprovalController;
 use App\Http\Controllers\DashboardReportController;
 use App\Http\Controllers\DashboardPreferenceController;
-
+use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\ArchivedDocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,8 +51,7 @@ Route::post(
     ->name('dashboard.preferences.update');
 
 
-    Route::get('/dashboard/report', [DashboardReportController::class, 'pdf'])
-    ->name('dashboard.report');
+   
 /*
 |--------------------------------------------------------------------------
 | Authenticated + Active Users
@@ -59,7 +59,24 @@ Route::post(
 */
 
 Route::middleware(['auth', 'active'])->group(function () {
+/*
+|--------------------------------------------------------------------------
+| Reports — Admin Only
+|--------------------------------------------------------------------------
+*/
 
+Route::middleware('admin')->group(function () {
+
+    Route::get('/reports', [DashboardReportController::class, 'index'])
+        ->name('reports.index');
+
+    Route::get('/dashboard/report', [DashboardReportController::class, 'pdf'])
+        ->name('dashboard.report');
+    
+    Route::get('/dashboard/report/excel', [DashboardReportController::class, 'excel'])
+    ->name('dashboard.report.excel');
+
+});
 
     /*
     |--------------------------------------------------------------------------
@@ -140,6 +157,14 @@ Route::post(
     '/requests/{documentRequest}/restore-for-approval',
     [RequestApprovalController::class, 'restoreForApproval']
 )->name('requests.restore-for-approval');
+
+Route::resource('personnels', PersonnelController::class)
+    ->except(['show']);
+
+Route::patch('/personnels/{personnel}/toggle-status', [
+    PersonnelController::class,
+    'toggleStatus',
+])->name('personnels.toggle-status');
 
     });
 
@@ -250,6 +275,27 @@ Route::post(
     [\App\Http\Controllers\RequestKanbanController::class, 'move']
 )->name('requests.kanban.move');
 
+// Update individual service progress
+Route::put(
+    '/requests/{documentRequest}/services/{service}/progress',
+    [\App\Http\Controllers\RequestKanbanController::class, 'updateServiceProgress']
+)->name('requests.kanban.service.progress');
+
+Route::post(
+    '/requests/{documentRequest}/kanban-decision',
+    [\App\Http\Controllers\RequestKanbanController::class, 'decide']
+)
+    ->name('requests.kanban.decision')
+    ->middleware('admin');
+
+    
+Route::put(
+    '/requests/{documentRequest}/assignment',
+    [\App\Http\Controllers\RequestKanbanController::class, 'updateAssignment']
+)
+    ->name('requests.kanban.assignment.update')
+    ->middleware('admin');
+
     Route::get(
         '/requests',
         [DocumentRequestController::class, 'index']
@@ -264,6 +310,13 @@ Route::post(
         '/requests/ongoing',
         [DocumentRequestController::class, 'ongoing']
     )->name('requests.ongoing');
+    // Assigned and Ongoing Requests
+Route::get('/requests/active-work', [DocumentRequestController::class, 'activeWork'])
+    ->name('requests.active-work');
+
+// Overdue Requests
+Route::get('/requests/overdue', [DocumentRequestController::class, 'overdue'])
+    ->name('requests.overdue');
 
     Route::get(
         '/requests/completed',
@@ -338,9 +391,11 @@ Route::post(
     */
 
     Route::post(
-        '/requests/{documentRequest}/assign',
-        [DocumentRequestController::class, 'assign']
-    )->name('requests.assign');
+    '/requests/{documentRequest}/assign',
+    [DocumentRequestController::class, 'assign']
+)
+    ->name('requests.assign')
+    ->middleware('admin');
 
     Route::post(
         '/requests/{documentRequest}/start',
@@ -516,6 +571,59 @@ Route::delete(
 )->name('services.fields.options.destroy');
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | General Document Archives
+    |--------------------------------------------------------------------------
+    | Admins and Staff with explicit archive permission can access.
+    */
+
+    Route::middleware('document-archive')
+        ->prefix('document-archives')
+        ->name('document-archives.')
+        ->group(function () {
+
+            // Archive listing
+            Route::get('/', [ArchivedDocumentController::class, 'index'])
+                ->name('index');
+
+            // Upload a new document
+            Route::get('/create', [ArchivedDocumentController::class, 'create'])
+                ->name('create');
+
+            Route::post('/', [ArchivedDocumentController::class, 'store'])
+                ->name('store');
+
+            // View document information
+            Route::get('/{archivedDocument}', [ArchivedDocumentController::class, 'show'])
+                ->whereNumber('archivedDocument')
+                ->name('show');
+
+            // Edit document information
+            Route::get('/{archivedDocument}/edit', [ArchivedDocumentController::class, 'edit'])
+                ->whereNumber('archivedDocument')
+                ->name('edit');
+
+            Route::put('/{archivedDocument}', [ArchivedDocumentController::class, 'update'])
+                ->whereNumber('archivedDocument')
+                ->name('update');
+
+            // Secure PDF preview and download
+            Route::get('/{archivedDocument}/preview', [ArchivedDocumentController::class, 'preview'])
+                ->whereNumber('archivedDocument')
+                ->name('preview');
+
+            Route::get('/{archivedDocument}/download', [ArchivedDocumentController::class, 'download'])
+                ->whereNumber('archivedDocument')
+                ->name('download');
+
+            // Only Admins can delete archived documents
+            Route::delete('/{archivedDocument}', [ArchivedDocumentController::class, 'destroy'])
+                ->whereNumber('archivedDocument')
+                ->middleware('admin')
+                ->name('destroy');
+
+        });
 
 });
 

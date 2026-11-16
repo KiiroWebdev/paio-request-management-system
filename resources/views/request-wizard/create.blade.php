@@ -10,13 +10,12 @@
 
         <div class="card-header">
 
-            <h3>{{ $service->name }}</h3>
+           
+<h3>Submit a Request</h3>
 
-            @if($service->description)
-                <p class="text-muted mb-0">
-                    {{ $service->description }}
-                </p>
-            @endif
+<p class="text-muted mb-0">
+    Select one or more services, then complete the required information for each.
+</p>
 
         </div>
 
@@ -29,10 +28,56 @@
             @endif
 
            <form method="POST"
-      action="{{ route('requests.store', $service) }}"
+      action="{{ route('request-wizard.store', $service) }}"
       enctype="multipart/form-data">
 
                 @csrf
+
+{{-- Multiple Service Selection --}}
+<div class="mb-4">
+    <h5 class="mb-3">Select Required Services</h5>
+
+    @error('services')
+        <div class="alert alert-danger">{{ $message }}</div>
+    @enderror
+
+    <div class="row">
+        @foreach($services as $availableService)
+            <div class="col-md-6 col-lg-4 mb-3">
+                <label class="card h-100 p-3">
+                    <div class="form-check">
+                        <input
+                            type="checkbox"
+                            class="form-check-input service-checkbox"
+                            name="services[]"
+                            value="{{ $availableService->id }}"
+                            data-service-id="{{ $availableService->id }}"
+                            @checked(
+                                in_array(
+                                    $availableService->id,
+                                    old('services', [$service->id])
+                                )
+                            )
+                        >
+
+                        <span class="form-check-label fw-semibold">
+                            {{ $availableService->name }}
+                        </span>
+                    </div>
+
+                    @if($availableService->description)
+                        <small class="text-muted mt-2">
+                            {{ $availableService->description }}
+                        </small>
+                    @endif
+                </label>
+            </div>
+        @endforeach
+    </div>
+</div>
+
+<hr class="my-4">
+
 
                 {{-- ========================================================= --}}
 {{-- Request Information --}}
@@ -51,27 +96,26 @@
             Organization <span class="text-danger">*</span>
         </label>
 
-        <select
-            name="organization_id"
-            id="organization_id"
-            class="form-select @error('organization_id') is-invalid @enderror">
+       <select
+    name="organization_id"
+    id="organization_id"
+    class="form-select @error('organization_id') is-invalid @enderror">
 
-            <option value="">Select Organization</option>
+    <option value="">Select Organization</option>
 
-            @foreach($organizations as $organization)
+    @foreach($organizations as $organization)
+        <option
+            value="{{ $organization->id }}"
+            @selected(old('organization_id') == $organization->id)>
+            {{ $organization->name }}
+        </option>
+    @endforeach
 
-                <option
-                    value="{{ $organization->id }}"
-                    data-organization="{{ $organization->id }}"
-                    @selected(old('organization_id') == $organization->id)>
+    <option value="manual" @selected(old('organization_id') === 'manual')>
+        + Enter Organization Manually
+    </option>
 
-                    {{ $organization->name }}
-
-                </option>
-
-            @endforeach
-
-        </select>
+</select>
 
         @error('organization_id')
             <div class="invalid-feedback">
@@ -81,45 +125,234 @@
 
     </div>
 
-    <div class="col-md-6 mb-3">
+    <div class="col-12 mb-3" id="manualOrganizationContainer" hidden>
 
-        <label class="form-label">
-            Requestor <span class="text-danger">*</span>
-        </label>
+    <div class="card border-primary">
+        <div class="card-header bg-light">
+            <strong>New Organization Details</strong>
+        </div>
 
-        <select
-            name="contact_id"
-            id="contact_id"
-            class="form-select @error('contact_id') is-invalid @enderror">
+        <div class="card-body">
+            <div class="row">
 
-            <option value="">
-                Select Requestor
-            </option>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Organization Name *</label>
+                    <input
+                        type="text"
+                        name="new_organization_name"
+                        class="form-control"
+                        value="{{ old('new_organization_name') }}">
+                </div>
 
-            @foreach($contacts as $contact)
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Short Name</label>
+                    <input
+                        type="text"
+                        name="new_organization_short_name"
+                        class="form-control"
+                        value="{{ old('new_organization_short_name') }}">
+                </div>
 
-                <option
-                    value="{{ $contact->id }}"
-                    data-organization="{{ $contact->organization_id }}"
-                    @selected(old('contact_id') == $contact->id)>
+                <div class="col-md-6 mb-3">
+    <label class="form-label">Organization Type</label>
 
-                    {{ $contact->full_name }}
+    <select
+        name="new_organization_type"
+        class="form-select">
 
-                </option>
+        <option value="">Select Organization Type</option>
+        <option value="Department" @selected(old('new_organization_type') == 'Department')>Department</option>
+        <option value="Office" @selected(old('new_organization_type') == 'Office')>Office</option>
+        <option value="Division" @selected(old('new_organization_type') == 'Division')>Division</option>
+        <option value="Section" @selected(old('new_organization_type') == 'Section')>Section</option>
+        <option value="Barangay" @selected(old('new_organization_type') == 'Barangay')>Barangay</option>
+        <option value="National Agency" @selected(old('new_organization_type') == 'National Agency')>National Agency</option>
+        <option value="GOCC" @selected(old('new_organization_type') == 'GOCC')>GOCC</option>
+        <option value="School" @selected(old('new_organization_type') == 'School')>School</option>
+        <option value="University" @selected(old('new_organization_type') == 'University')>University</option>
+        <option value="Hospital" @selected(old('new_organization_type') == 'Hospital')>Hospital</option>
+        <option value="Private Company" @selected(old('new_organization_type') == 'Private Company')>Private Company</option>
+        <option value="NGO" @selected(old('new_organization_type') == 'NGO')>NGO</option>
+        <option value="Peoples Organization" @selected(old('new_organization_type') == 'Peoples Organization')>Peoples Organization</option>
+        <option value="Media" @selected(old('new_organization_type') == 'Media')>Media</option>
+        <option value="Individual" @selected(old('new_organization_type') == 'Individual')>Individual</option>
+        <option value="Other" @selected(old('new_organization_type') == 'Other')>Other</option>
 
-            @endforeach
+    </select>
+</div>
 
-        </select>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Telephone</label>
+                    <input
+                        type="text"
+                        name="new_organization_telephone"
+                        class="form-control"
+                        value="{{ old('new_organization_telephone') }}">
+                </div>
 
-        @error('contact_id')
-            <div class="invalid-feedback">
-                {{ $message }}
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">Address</label>
+                    <textarea
+                        name="new_organization_address"
+                        class="form-control"
+                        rows="2">{{ old('new_organization_address') }}</textarea>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Email</label>
+                    <input
+                        type="email"
+                        name="new_organization_email"
+                        class="form-control"
+                        value="{{ old('new_organization_email') }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Website</label>
+                    <input
+                        type="text"
+                        name="new_organization_website"
+                        class="form-control"
+                        value="{{ old('new_organization_website') }}">
+                </div>
+
             </div>
-        @enderror
-
+        </div>
     </div>
 
 </div>
+
+    
+<div class="col-md-6 mb-3">
+
+    {{-- Requestor Dropdown --}}
+    <label class="form-label">
+        Requestor <span class="text-danger">*</span>
+    </label>
+
+    <select
+        name="contact_id"
+        id="contact_id"
+        class="form-select @error('contact_id') is-invalid @enderror">
+
+        <option value="">Select Requestor</option>
+
+        {{-- Existing Contacts --}}
+        @foreach($contacts as $contact)
+            <option
+                value="{{ $contact->id }}"
+                data-organization="{{ $contact->organization_id }}"
+                @selected(old('contact_id') == $contact->id)>
+                {{ $contact->full_name }}
+            </option>
+        @endforeach
+
+        {{-- Manual Entry Option --}}
+        <option value="manual" @selected(old('contact_id') === 'manual')>
+            + Enter Requestor Manually
+        </option>
+
+    </select>
+
+    @error('contact_id')
+        <div class="invalid-feedback">
+            {{ $message }}
+        </div>
+    @enderror
+
+
+    {{-- Manual Contact Fields --}}
+    <div id="manualContactContainer"
+         class="mt-3 p-3 border rounded bg-light"
+         style="display: none;">
+
+        <h6 class="mb-3">New Requestor Information</h6>
+
+        <div class="row">
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">First Name *</label>
+                <input type="text" name="new_contact_first_name"
+                    class="form-control"
+                    value="{{ old('new_contact_first_name') }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Middle Name</label>
+                <input type="text" name="new_contact_middle_name"
+                    class="form-control"
+                    value="{{ old('new_contact_middle_name') }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Last Name *</label>
+                <input type="text" name="new_contact_last_name"
+                    class="form-control"
+                    value="{{ old('new_contact_last_name') }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Suffix</label>
+                <input type="text" name="new_contact_suffix"
+                    class="form-control"
+                    value="{{ old('new_contact_suffix') }}"
+                    placeholder="Jr., Sr., III">
+            </div>
+
+            <div class="col-md-6 mb-3">
+    <label class="form-label">
+        Position / Designation
+        <span class="text-danger">*</span>
+    </label>
+
+    <input
+        type="text"
+        name="new_contact_position"
+        class="form-control @error('new_contact_position') is-invalid @enderror"
+        value="{{ old('new_contact_position') }}"
+        placeholder="e.g. Information Officer"
+        required>
+
+    @error('new_contact_position')
+        <div class="invalid-feedback">
+            {{ $message }}
+        </div>
+    @enderror
+</div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Office</label>
+                <input type="text" name="new_contact_office"
+                    class="form-control"
+                    value="{{ old('new_contact_office') }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" name="new_contact_email"
+                    class="form-control"
+                    value="{{ old('new_contact_email') }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Mobile Number</label>
+                <input type="text" name="new_contact_mobile"
+                    class="form-control"
+                    value="{{ old('new_contact_mobile') }}">
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Telephone</label>
+                <input type="text" name="new_contact_telephone"
+                    class="form-control"
+                    value="{{ old('new_contact_telephone') }}">
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
 
 {{-- Title & Subject --}}
 <div class="row">
@@ -312,23 +545,153 @@
 
 <hr class="my-4">
 
+<hr class="my-4">
+
+{{-- ========================================================= --}}
+{{-- Shared Event Information --}}
+{{-- ========================================================= --}}
+
+<div class="mb-4">
+    <h5 class="mb-3">
+        <i class="bi bi-calendar-event me-2"></i>
+        Event Information
+    </h5>
+
+    <p class="text-muted">
+        Event details are optional. Select the information you want to provide.
+    </p>
+
+    {{-- Include Event Date --}}
+    <div class="form-check mb-3">
+        <input
+            class="form-check-input"
+            type="checkbox"
+            id="includeEventDate"
+            name="include_event_date"
+            value="1"
+            @checked(old('include_event_date'))
+        >
+
+        <label class="form-check-label fw-semibold" for="includeEventDate">
+            Include Event Date
+        </label>
+    </div>
+
+    <div id="eventDateContainer" class="mb-3" hidden>
+        <label for="eventDate" class="form-label">
+            Event Date
+        </label>
+
+        <input
+            type="date"
+            class="form-control"
+            id="eventDate"
+            name="event_date"
+            value="{{ old('event_date') }}"
+        >
+
+        @error('event_date')
+            <div class="text-danger small">{{ $message }}</div>
+        @enderror
+    </div>
+
+    {{-- Include Event Schedule --}}
+    <div class="form-check mb-3">
+        <input
+            class="form-check-input"
+            type="checkbox"
+            id="includeEventSchedule"
+            name="include_event_schedule"
+            value="1"
+            @checked(old('include_event_schedule'))
+        >
+
+        <label class="form-check-label fw-semibold" for="includeEventSchedule">
+            Include Event Schedule
+        </label>
+    </div>
+
+    <div id="eventScheduleContainer" hidden>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <label class="form-label fw-semibold mb-0">
+                Event Schedule Entries
+            </label>
+
+            <button
+                type="button"
+                class="btn btn-outline-primary btn-sm"
+                id="addEventSchedule"
+            >
+                <i class="bi bi-plus-circle me-1"></i>
+                Add Schedule
+            </button>
+        </div>
+
+        <div id="eventScheduleRows"></div>
+
+        @error('event_schedule')
+            <div class="text-danger small">{{ $message }}</div>
+        @enderror
+
+        @error('event_schedule.*.date')
+            <div class="text-danger small">{{ $message }}</div>
+        @enderror
+
+        @error('event_schedule.*.start_time')
+            <div class="text-danger small">{{ $message }}</div>
+        @enderror
+
+        @error('event_schedule.*.end_time')
+            <div class="text-danger small">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<hr class="my-4">
+
 {{-- ========================================================= --}}
 {{-- Service Information --}}
 {{-- ========================================================= --}}
 
-<h5 class="mb-3">
-    Service Information
-</h5>
 
-@foreach($service->fields as $field)
+<h5 class="mb-3">Service Information</h5>
 
-    <x-dynamic.field
-        :field="$field"
-        :name="'answers['.$field->id.']'"
-        :value="old('answers.'.$field->id)"
-    />
+<div id="serviceFieldsContainer">
+    @foreach($services as $availableService)
+        <div
+            class="service-fields-section mb-4"
+            data-service-id="{{ $availableService->id }}"
+            @if($availableService->id !== $service->id) hidden @endif
+        >
+            <h6 class="fw-semibold mb-3">
+                {{ $availableService->name }}
+            </h6>
 
-@endforeach
+            @forelse($availableService->fields as $field)
+
+    @if(!in_array(strtolower($field->field_name), [
+        'event_schedule',
+        'date_of_event',
+        'schedule_of_event',
+    ], true))
+
+        <x-dynamic.field
+            :field="$field"
+            :name="'answers['.$field->id.']'"
+            :value="old('answers.'.$field->id)"
+        />
+
+    @endif
+
+@empty
+                <p class="text-muted">
+                    No additional fields are required for this service.
+                </p>
+            @endforelse
+        </div>
+    @endforeach
+</div>
+
 
 <hr class="my-4">
 
@@ -445,54 +808,158 @@
 
 @push('scripts')
 <script>
+
 document.addEventListener('DOMContentLoaded', function () {
 
-    const organization = document.getElementById('organization_id');
-    const contact = document.getElementById('contact_id');
 
-    if (!organization || !contact) {
-        return;
+// ==========================================
+// Shared Event Information
+// ==========================================
+
+const includeEventDate = document.getElementById('includeEventDate');
+const eventDateContainer = document.getElementById('eventDateContainer');
+const eventDateInput = document.getElementById('eventDate');
+
+const includeEventSchedule = document.getElementById('includeEventSchedule');
+const eventScheduleContainer = document.getElementById('eventScheduleContainer');
+const eventScheduleRows = document.getElementById('eventScheduleRows');
+const addEventScheduleButton = document.getElementById('addEventSchedule');
+
+function updateEventDateVisibility() {
+    const enabled = includeEventDate.checked;
+
+    eventDateContainer.hidden = !enabled;
+    eventDateInput.disabled = !enabled;
+
+    if (!enabled) {
+        eventDateInput.value = '';
     }
+}
 
-    const allContacts = Array.from(contact.options);
+function updateEventScheduleVisibility() {
+    const enabled = includeEventSchedule.checked;
 
-    function filterContacts() {
+    eventScheduleContainer.hidden = !enabled;
 
-        const selectedOrg = organization.value;
-        const selectedContact = contact.value;
+    eventScheduleRows.querySelectorAll('input').forEach(input => {
+        input.disabled = !enabled;
+    });
 
-        contact.innerHTML = '';
+    if (!enabled) {
+        eventScheduleRows.innerHTML = '';
+    } else if (eventScheduleRows.children.length === 0) {
+        addScheduleRow();
+    }
+}
 
-        const placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.textContent = 'Select Requestor';
-        contact.appendChild(placeholder);
+function addScheduleRow() {
+    const index = eventScheduleRows.children.length;
 
-        allContacts.forEach(function(option) {
+    const row = document.createElement('div');
+    row.className = 'card border mb-3 event-schedule-row';
 
-            if (option.value === '') return;
+    row.innerHTML = `
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <strong>Schedule ${index + 1}</strong>
 
-            if (option.dataset.organization === selectedOrg) {
+                <button type="button"
+                    class="btn btn-outline-danger btn-sm remove-schedule">
+                    Remove
+                </button>
+            </div>
 
-                const clone = option.cloneNode(true);
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Date</label>
+                    <input type="date"
+                        class="form-control"
+                        name="event_schedule[${index}][date]"
+                        required>
+                </div>
 
-                if (clone.value === selectedContact) {
-                    clone.selected = true;
-                }
+                <div class="col-md-4">
+                    <label class="form-label">Start Time</label>
+                    <input type="time"
+                        class="form-control"
+                        name="event_schedule[${index}][start_time]"
+                        required>
+                </div>
 
-                contact.appendChild(clone);
+                <div class="col-md-4">
+                    <label class="form-label">End Time</label>
+                    <input type="time"
+                        class="form-control"
+                        name="event_schedule[${index}][end_time]"
+                        required>
+                </div>
+            </div>
+        </div>
+    `;
 
-            }
+    row.querySelector('.remove-schedule').addEventListener('click', function () {
+        row.remove();
+        renumberScheduleRows();
+    });
 
+    eventScheduleRows.appendChild(row);
+}
+
+function renumberScheduleRows() {
+    const rows = eventScheduleRows.querySelectorAll('.event-schedule-row');
+
+    rows.forEach((row, index) => {
+        row.querySelector('strong').textContent = `Schedule ${index + 1}`;
+
+        row.querySelectorAll('input').forEach(input => {
+            const field = input.name.match(/\[(date|start_time|end_time)\]/)[1];
+            input.name = `event_schedule[${index}][${field}]`;
         });
+    });
+}
 
+includeEventDate.addEventListener('change', updateEventDateVisibility);
+includeEventSchedule.addEventListener('change', updateEventScheduleVisibility);
+
+addEventScheduleButton.addEventListener('click', addScheduleRow);
+
+updateEventDateVisibility();
+updateEventScheduleVisibility();
+
+    
+
+    // Show fields for every selected service.
+    const serviceCheckboxes = document.querySelectorAll('.service-checkbox');
+    const serviceSections = document.querySelectorAll('.service-fields-section');
+
+    function updateServiceFields() {
+        const selectedServiceIds = Array.from(serviceCheckboxes)
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.dataset.serviceId);
+
+        serviceSections.forEach(section => {
+            const isSelected = selectedServiceIds.includes(
+                section.dataset.serviceId
+            );
+
+            section.hidden = !isSelected;
+
+            section.querySelectorAll('input, select, textarea').forEach(input => {
+                input.disabled = !isSelected;
+            });
+        });
     }
 
-    organization.addEventListener('change', filterContacts);
+    serviceCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateServiceFields);
+    });
 
-    filterContacts();
-
+    updateServiceFields();
 });
+
+
+
+  
 </script>
 @endpush
 
@@ -651,6 +1118,85 @@ document.addEventListener('DOMContentLoaded', function () {
 
         });
     }
+
+});
+</script>
+@endpush
+
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const organizationSelect = document.getElementById('organization_id');
+    const contactSelect = document.getElementById('contact_id');
+
+    const manualOrganizationContainer = document.getElementById('manualOrganizationContainer');
+    const manualContactContainer = document.getElementById('manualContactContainer');
+
+    if (!organizationSelect || !contactSelect) {
+        return;
+    }
+
+    function toggleManualFields(container, show) {
+        if (!container) return;
+
+        container.hidden = !show;
+        container.style.display = show ? '' : 'none';
+
+        container.querySelectorAll('input, textarea, select').forEach(function (field) {
+            field.disabled = !show;
+        });
+    }
+
+    function updateOrganizationFields() {
+        const isManualOrganization = organizationSelect.value === 'manual';
+
+        toggleManualFields(manualOrganizationContainer, isManualOrganization);
+
+        // A newly entered organization needs a newly entered contact.
+        if (isManualOrganization) {
+            contactSelect.value = 'manual';
+        }
+
+        updateContactFields();
+    }
+
+    function updateContactFields() {
+        const organizationId = organizationSelect.value;
+        const isManualOrganization = organizationId === 'manual';
+        const isManualContact = contactSelect.value === 'manual';
+
+        Array.from(contactSelect.options).forEach(function (option) {
+            if (!option.dataset.organization) return;
+
+            const belongsToOrganization =
+                !isManualOrganization &&
+                option.dataset.organization === organizationId;
+
+            option.hidden = !belongsToOrganization;
+            option.disabled = !belongsToOrganization;
+        });
+
+        // Do not allow an existing contact with a different organization.
+        if (
+            !isManualOrganization &&
+            contactSelect.selectedOptions.length &&
+            contactSelect.selectedOptions[0].dataset.organization &&
+            contactSelect.selectedOptions[0].dataset.organization !== organizationId
+        ) {
+            contactSelect.value = '';
+        }
+
+        toggleManualFields(manualContactContainer, isManualContact);
+    }
+
+   organizationSelect.addEventListener('change', updateOrganizationFields);
+contactSelect.addEventListener('change', updateContactFields);
+
+// Apply the correct state when the page first loads.
+updateOrganizationFields();
+
+
 
 });
 </script>

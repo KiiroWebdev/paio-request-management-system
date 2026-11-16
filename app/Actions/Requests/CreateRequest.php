@@ -34,9 +34,13 @@ class CreateRequest
 
             'subject' => $data['subject'],
 
-            'description' => $data['description'] ?? null,
+'description' => $data['description'] ?? null,
 
-            'status' => 'Incoming',
+'event_date' => $data['event_date'] ?? null,
+
+'event_schedule' => $data['event_schedule'] ?? null,
+
+'status' => 'Incoming',
 
             'priority' => $data['priority'] ?? 'Normal',
 

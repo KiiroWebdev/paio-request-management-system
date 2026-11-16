@@ -11,7 +11,14 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['name', 'email', 'password', 'role', 'is_active'])]
+#[Fillable([
+    'name',
+    'email',
+    'password',
+    'role',
+    'is_active',
+    'can_access_document_archives',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -29,6 +36,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'can_access_document_archives' => 'boolean',
     ];
 }
     public function isAdmin(): bool
@@ -63,5 +71,9 @@ public function reviewedRequestActionRequests()
 public function dashboardPreference(): HasOne
 {
     return $this->hasOne(DashboardPreference::class);
+}
+public function personnel(): HasOne
+{
+    return $this->hasOne(Personnel::class);
 }
 }

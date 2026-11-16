@@ -158,7 +158,9 @@ body {
 .stat-card:hover {
     box-shadow: 0 5px 14px rgba(36, 91, 59, 0.10) !important;
 }
-/* PAIO Dashboard Quick Access Modules */
+
+/* PAIO Dashboard Quick Access - Tile Layout */
+
 .paio-module-link {
     display: block;
     height: 100%;
@@ -168,54 +170,58 @@ body {
 
 .paio-module-card {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 14px;
-    min-height: 112px;
-    padding: 20px;
+    justify-content: center;
+    gap: 22px;
+    min-height: 280px;
+    height: 100%;
+    padding: 30px 14px;
     background: #ffffff;
     border: 1px solid #dfe7de;
     border-radius: 14px;
-    box-shadow: 0 2px 7px rgba(36, 91, 59, 0.05);
-    transition: transform 0.2s ease,
-                box-shadow 0.2s ease,
-                border-color 0.2s ease;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(36, 91, 59, 0.05);
+    transition: transform .2s ease,
+                box-shadow .2s ease,
+                border-color .2s ease,
+                background-color .2s ease;
 }
 
 .paio-module-card:hover {
-    transform: translateY(-3px);
-    border-color: #9bb9a2;
-    box-shadow: 0 7px 18px rgba(36, 91, 59, 0.10);
+    transform: translateY(-5px);
+    background: #f5f9f5;
+    border-color: #8db69a;
+    box-shadow: 0 8px 20px rgba(36, 91, 59, 0.12);
 }
 
 .paio-module-icon {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 110px;
+    height: 110px;
     flex-shrink: 0;
-    width: 48px;
-    height: 48px;
     color: #245b3b;
     background: #e7eee6;
-    border-radius: 12px;
-    font-size: 1.35rem;
+    border-radius: 18px;
+    font-size: 3.5rem;
 }
 
 .paio-module-card h6 {
-    margin: 0 0 5px;
-    color: #245b3b;
-    font-weight: 600;
-}
-
-.paio-module-card p {
     margin: 0;
-    color: #537a61;
-    font-size: 0.85rem;
+    color: #245b3b;
+    font-size: 1.05rem;
+    font-weight: 700;
     line-height: 1.4;
 }
 
+.paio-module-card p {
+    display: none;
+}
+
 .paio-module-arrow {
-    color: #9bb9a2;
-    margin-left: auto;
+    display: none;
 }
 
 .paio-module-link:focus-visible {
@@ -226,16 +232,45 @@ body {
 
 @media (max-width: 575.98px) {
     .paio-module-card {
-        min-height: 96px;
-        padding: 15px;
-        gap: 12px;
+        min-height: 280px;
+        padding: 16px 10px;
+        gap: 10px;
     }
 
     .paio-module-icon {
-        width: 42px;
-        height: 42px;
-        font-size: 1.2rem;
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
     }
+
+    .paio-module-card h6 {
+        font-size: .85rem;
+    }
+}
+
+/* Quick Access Custom Illustrations */
+
+/* Quick Access Custom Illustrations */
+
+.paio-module-image {
+    width: 250px;
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.paio-module-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    transition: transform .25s ease;
+}
+
+.paio-module-card:hover .paio-module-image img {
+    transform: scale(1.06);
 }
 /* Improve dashboard statistic icon contrast */
 .stat-icon {

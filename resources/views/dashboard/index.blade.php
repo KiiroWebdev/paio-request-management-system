@@ -184,148 +184,136 @@
 </div>
 
 
-    {{-- Main Modules --}}
-    <div class="mb-3">
-        <h5 class="fw-semibold mb-1">Quick Access</h5>
-        <p class="text-muted small mb-0">
-            Select a module to continue.
-        </p>
-    </div>
+    
+{{-- Main Modules --}}
+<div class="mb-3">
+    <h5 class="fw-semibold mb-1">Quick Access</h5>
+    <p class="text-muted small mb-0">
+        Select a module to continue.
+    </p>
+</div>
 
-    <div class="row g-3">
+<div class="row row-cols-2 row-cols-sm-3 row-cols-lg-4 row-cols-xl-5 g-3">
 
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('requests.index') }}"
-               class="paio-module-link">
-                <div class="paio-module-card">
-                    <div class="paio-module-icon">
-                        <i class="bi bi-folder2-open"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6>Request Management</h6>
-                        <p>View and manage document requests.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
+    {{-- Request Management --}}
+    <div class="col">
+        <a href="{{ route('requests.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/request-management.png') }}"
+                         alt="Request Management">
                 </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('request-approvals.index') }}"
-               class="paio-module-link">
-                <div class="paio-module-card">
-                    <div class="paio-module-icon">
-                        <i class="bi bi-clipboard-check"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6>Request Approvals</h6>
-                        <p>Review requests requiring approval.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('requests.archive.index') }}"
-               class="paio-module-link">
-                <div class="paio-module-card">
-                    <div class="paio-module-icon">
-                        <i class="bi bi-archive"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6>Archives</h6>
-                        <p>Access archived requests and records.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('services.index') }}"
-               class="paio-module-link">
-                <div class="paio-module-card">
-                    <div class="paio-module-icon">
-                        <i class="bi bi-grid"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6>Services</h6>
-                        <p>View available services and configurations.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('organizations.index') }}"
-               class="paio-module-link">
-                <div class="paio-module-card">
-                    <div class="paio-module-icon">
-                        <i class="bi bi-building"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6>Organizations</h6>
-                        <p>Manage organizations submitting requests.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
-                </div>
-            </a>
-        </div>
-
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('contacts.index') }}"
-               class="paio-module-link">
-                <div class="paio-module-card">
-                    <div class="paio-module-icon">
-                        <i class="bi bi-person-lines-fill"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6>Contacts</h6>
-                        <p>Access contact information.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
-                </div>
-            </a>
-        </div>
-
-        @if(auth()->user()->can('admin'))
-            <div class="col-12 col-sm-6 col-xl-4">
-                <a href="{{ route('users.index') }}"
-                   class="paio-module-link">
-                    <div class="paio-module-card">
-                        <div class="paio-module-icon">
-                            <i class="bi bi-people"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h6>User Management</h6>
-                            <p>Manage system users and access.</p>
-                        </div>
-                        <i class="bi bi-chevron-right paio-module-arrow"></i>
-                    </div>
-                </a>
+                <h6>Request Management</h6>
             </div>
-        @endif
+        </a>
+    </div>
 
-        <div class="col-12 col-sm-6 col-xl-4">
-            <a href="{{ route('dashboard.report') }}"
-               class="paio-module-link"
-               target="_blank"
-               rel="noopener">
+    {{-- Kanban Board --}}
+    <div class="col">
+        <a href="{{ route('requests.kanban') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/kanban-board.png') }}"
+                         alt="Kanban Board">
+                </div>
+                <h6>Kanban Board</h6>
+            </div>
+        </a>
+    </div>
+
+    {{-- Request Approvals --}}
+    <div class="col">
+        <a href="{{ route('request-approvals.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/request-approvals.png') }}"
+                         alt="Request Approvals">
+                </div>
+                <h6>Request Approvals</h6>
+            </div>
+        </a>
+    </div>
+
+    {{-- Archives --}}
+    <div class="col">
+        <a href="{{ route('requests.archive.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/archives.png') }}"
+                         alt="Archives">
+                </div>
+                <h6>Archives</h6>
+            </div>
+        </a>
+    </div>
+
+    {{-- Services --}}
+    <div class="col">
+        <a href="{{ route('services.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/services.png') }}"
+                         alt="Services">
+                </div>
+                <h6>Services</h6>
+            </div>
+        </a>
+    </div>
+
+    {{-- Organizations --}}
+    <div class="col">
+        <a href="{{ route('organizations.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/organizations.png') }}"
+                         alt="Organizations">
+                </div>
+                <h6>Organizations</h6>
+            </div>
+        </a>
+    </div>
+
+    {{-- Contacts --}}
+    <div class="col">
+        <a href="{{ route('contacts.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/contacts.png') }}"
+                         alt="Contacts">
+                </div>
+                <h6>Contacts</h6>
+            </div>
+        </a>
+    </div>
+
+    {{-- User Management --}}
+    @if(auth()->user()->can('admin'))
+        <div class="col">
+            <a href="{{ route('users.index') }}" class="paio-module-link">
                 <div class="paio-module-card">
                     <div class="paio-module-icon">
-                        <i class="bi bi-file-earmark-pdf"></i>
+                        <i class="bi bi-people"></i>
                     </div>
-                    <div class="flex-grow-1">
-                        <h6>Reports</h6>
-                        <p>Generate the current PDF dashboard report.</p>
-                    </div>
-                    <i class="bi bi-chevron-right paio-module-arrow"></i>
+                    <h6>User Management</h6>
                 </div>
             </a>
         </div>
+    @endif
 
+    {{-- Reports --}}
+    <div class="col">
+        <a href="{{ route('reports.index') }}" class="paio-module-link">
+            <div class="paio-module-card">
+                <div class="paio-module-image">
+                    <img src="{{ asset('images/quick-access/reports.png') }}"
+                         alt="Reports">
+                </div>
+                <h6>Reports</h6>
+            </div>
+        </a>
     </div>
+
+</div>
+
 </div>
 @endsection

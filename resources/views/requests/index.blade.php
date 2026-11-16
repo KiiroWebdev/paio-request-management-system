@@ -7,20 +7,31 @@
 <div class="container-fluid">
 
     {{-- Page Header --}}
+    
     <x-admin.page-header
-    :title="$pageTitle ?? 'Request Management'"
-    subtitle="Manage document requests">
+        :title="$pageTitle ?? 'Request Management'"
+        subtitle="Manage document requests">
 
+        {{-- Return to Kanban Board --}}
+        <a href="{{ route('requests.kanban') }}"
+           class="btn btn-outline-primary">
+
+            <i class="bi bi-kanban me-1"></i>
+            Kanban Board
+
+        </a>
+
+        {{-- Create New Request --}}
         <a href="{{ route('request-wizard.services') }}"
            class="btn btn-primary">
 
-            <i class="bi bi-plus-circle"></i>
-
+            <i class="bi bi-plus-circle me-1"></i>
             New Request
 
         </a>
 
     </x-admin.page-header>
+
 
     <x-admin.breadcrumb
     :items="['Request Management', $pageTitle ?? 'Request Management']"/>

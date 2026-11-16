@@ -3,6 +3,7 @@
 namespace App\Actions\Requests;
 
 use App\Models\Service;
+use Illuminate\Support\Collection;
 
 class BuildValidationRules
 {
@@ -15,68 +16,75 @@ class BuildValidationRules
         'select' => ['string'],
         'checkbox' => ['array'],
         'file' => ['file'],
-        'schedule' => ['array', 'min:1'],
+        'schedule' => ['array'],
     ];
 
-    public function execute(Service $service): array
+    /**
+     * Build validation rules for one or multiple services.
+     */
+    public function execute(Service|Collection $services): array
     {
-        $service->loadMissing([
-            'fields.fieldType',
-        ]);
+        if ($services instanceof Service) {
+            $services = collect([$services]);
+        }
+
+       $services->each(function (Service $service) {
+    $service->loadMissing('fields.fieldType');
+});
 
         $rules = [
-            'answers' => ['array'],
+            'answers' => ['nullable', 'array'],
         ];
 
-        foreach ($service->fields as $field) {
+        // These are now handled by shared request-level event fields.
+        $sharedEventFieldNames = [
+            'event_schedule',
+            'date_of_event',
+            'schedule_of_event',
+        ];
 
-            $fieldType = $field->fieldType->key;
+        foreach ($services as $service) {
+            foreach ($service->fields as $field) {
 
-            $fieldRules = [];
+                // Skip old service-specific event fields.
+                if (in_array(
+                    strtolower($field->field_name),
+                    $sharedEventFieldNames,
+                    true
+                )) {
+                    continue;
+                }
 
-            $fieldRules[] = $field->required
-                ? 'required'
-                : 'nullable';
+                $fieldType = $field->fieldType->key;
 
-            /*
-             * Schedule fields are arrays.
-             * All other fields use their normal type rules.
-             */
-            if ($fieldType === 'schedule') {
-
-                $fieldRules[] = 'array';
-                $fieldRules[] = 'min:1';
-
-            } else {
+                $fieldRules = [
+                    $field->required ? 'required' : 'nullable',
+                ];
 
                 $fieldRules = array_merge(
                     $fieldRules,
                     $this->typeRules[$fieldType]
                         ?? $this->typeRules['text']
                 );
-            }
 
-            $rules["answers.{$field->id}"] = $fieldRules;
+                $rules["answers.{$field->id}"] = $fieldRules;
 
-            /*
-             * Validate each Schedule entry.
-             */
-            if ($fieldType === 'schedule') {
+                if ($fieldType === 'schedule') {
+                    $rules["answers.{$field->id}.*.date"] = [
+                        'required',
+                        'date',
+                    ];
 
-                $rules["answers.{$field->id}.*.date"] = [
-                    'required',
-                    'date',
-                ];
+                    $rules["answers.{$field->id}.*.start_time"] = [
+                        'required',
+                        'date_format:H:i',
+                    ];
 
-                $rules["answers.{$field->id}.*.start_time"] = [
-                    'required',
-                    'date_format:H:i',
-                ];
-
-                $rules["answers.{$field->id}.*.end_time"] = [
-                    'required',
-                    'date_format:H:i',
-                ];
+                    $rules["answers.{$field->id}.*.end_time"] = [
+                        'required',
+                        'date_format:H:i',
+                    ];
+                }
             }
         }
 

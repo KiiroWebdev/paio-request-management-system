@@ -123,6 +123,40 @@
 
                     </div>
 
+                    {{-- General Document Archives Access --}}
+<div class="col-md-6 mb-3">
+
+    <label class="form-label fw-semibold">
+        Document Archives Permission
+    </label>
+
+    <div class="form-check">
+        <input
+            type="checkbox"
+            name="can_access_document_archives"
+            value="1"
+            class="form-check-input"
+            id="can_access_document_archives"
+            @checked(old(
+                'can_access_document_archives',
+                $user->can_access_document_archives
+            ))
+        >
+
+        <label
+            class="form-check-label"
+            for="can_access_document_archives"
+        >
+            Allow access to General Document Archives
+        </label>
+    </div>
+
+    <small class="text-muted">
+        This permission applies to Staff accounts only. Admin accounts automatically have access.
+    </small>
+
+</div>
+
                     {{-- Password --}}
                     <div class="col-md-6 mb-3">
 

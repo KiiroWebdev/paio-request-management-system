@@ -72,6 +72,16 @@ if ($request->filled('search')) {
 
     }
 
+    // Assigned and Ongoing Filter
+if ($request->boolean('active_work')) {
+
+    $query->whereIn('status', [
+        'Assigned',
+        'Ongoing',
+    ]);
+
+}
+
     // Priority Filter
     if ($request->filled('priority')) {
 
@@ -167,13 +177,17 @@ if ($request->filled('date_to')) {
         ->paginate(15)
         ->withQueryString();
 
-    $pageTitle = match ($request->status) {
-    'Incoming' => 'Incoming Requests',
-    'Ongoing' => 'Ongoing Requests',
-    'Completed' => 'Completed Requests',
-    'Archived' => 'Archived Requests',
-    default => 'Request Management',
-};
+    $pageTitle = $request->boolean('overdue')
+    ? 'Overdue Requests'
+    : ($request->boolean('active_work')
+        ? 'Assigned and Ongoing Requests'
+        : match ($request->status) {
+            'Incoming' => 'Incoming Requests',
+            'Ongoing' => 'Ongoing Requests',
+            'Completed' => 'Completed Requests',
+            'Archived' => 'Archived Requests',
+            default => 'Request Management',
+        });
 
 return view('requests.index', [
 
@@ -437,6 +451,9 @@ public function update(
     DocumentRequest $documentRequest
 )
 {
+        if (! auth()->user()->isAdmin()) {
+        abort(403, 'Only administrators can assign requests.');
+    }
     if ($documentRequest->status !== 'Incoming') {
     return back()->with(
         'error',
@@ -537,6 +554,29 @@ if ($documentRequest->approval_status !== 'Approved') {
         'Request archived successfully.'
 
     );
+}
+/**
+ * Display Assigned and Ongoing Requests.
+ */
+public function activeWork(Request $request)
+{
+    $request->merge([
+        'active_work' => true,
+    ]);
+
+    return $this->index($request);
+}
+
+/**
+ * Display Overdue Requests.
+ */
+public function overdue(Request $request)
+{
+    $request->merge([
+        'overdue' => true,
+    ]);
+
+    return $this->index($request);
 }
 
 public function restore(

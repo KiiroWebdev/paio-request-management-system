@@ -36,6 +36,16 @@
 
     </a>
 
+    
+<li class="nav-item">
+    <a href="{{ route('requests.kanban') }}"
+       class="nav-link {{ request()->routeIs('requests.kanban') ? 'active' : '' }}">
+        <i class="bi bi-kanban"></i>
+        <span>Kanban Board</span>
+    </a>
+</li>
+
+
     {{-- Request Management --}}
     <div class="menu-group">
 
@@ -92,6 +102,17 @@
 </a>
 
         </div>
+
+
+{{-- General Document Archives --}}
+@if(Auth::user()->isAdmin() || Auth::user()->can_access_document_archives)
+    <a href="{{ route('document-archives.index') }}"
+       class="menu-link {{ request()->routeIs('document-archives.*') ? 'active' : '' }}">
+
+        <i class="bi bi-archive"></i>
+        <span>General Document Archives</span>
+    </a>
+@endif
 
     </div>
 
@@ -156,15 +177,24 @@
                 <span>Users</span>
             </a>
 
+            
+<a href="{{ route('personnels.index') }}"
+   class="{{ request()->routeIs('personnels.*') ? 'active' : '' }}">
+    <i class="bi bi-person-vcard"></i>
+    <span>Personnel Directory</span>
+</a>
+
+
             <a href="{{ route('request-action-requests.index') }}">
     <i class="bi bi-check2-square"></i>
     <span>Request Action Requests</span>
 </a>
 
-            <a href="#">
-                <i class="bi bi-bar-chart"></i>
-                <span>Reports</span>
-            </a>
+            <a href="{{ route('reports.index') }}"
+   class="{{ request()->routeIs('reports.*') ? 'active' : '' }}">
+    <i class="bi bi-bar-chart"></i>
+    <span>Reports</span>
+</a>
 
             <a href="#">
                 <i class="bi bi-clock-history"></i>

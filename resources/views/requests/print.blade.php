@@ -688,6 +688,74 @@
 
     </div>
 
+    
+{{-- =====================================================
+     EVENT INFORMATION
+====================================================== --}}
+
+@if($documentRequest->event_date || !empty($documentRequest->event_schedule))
+
+    <div class="section">
+
+        <div class="section-title">
+            EVENT INFORMATION
+        </div>
+
+        <div class="section-body">
+
+            <table>
+
+                @if($documentRequest->event_date)
+                    <tr>
+                        <td class="label">
+                            Event Date
+                        </td>
+
+                        <td colspan="3">
+                            {{ $documentRequest->event_date->format('F d, Y') }}
+                        </td>
+                    </tr>
+                @endif
+
+                @if(!empty($documentRequest->event_schedule))
+                    <tr>
+                        <td class="label">
+                            Event Schedule
+                        </td>
+
+                        <td colspan="3">
+
+                            @foreach($documentRequest->event_schedule as $index => $schedule)
+
+                                <div style="margin-bottom: 8px;">
+
+                                    <strong>
+                                        Schedule {{ $index + 1 }}:
+                                        {{ \Carbon\Carbon::parse($schedule['date'])->format('F d, Y') }}
+                                    </strong>
+
+                                    <br>
+
+                                    {{ \Carbon\Carbon::parse($schedule['start_time'])->format('h:i A') }}
+                                    –
+                                    {{ \Carbon\Carbon::parse($schedule['end_time'])->format('h:i A') }}
+
+                                </div>
+
+                            @endforeach
+
+                        </td>
+                    </tr>
+                @endif
+
+            </table>
+
+        </div>
+
+    </div>
+
+@endif
+
 
     {{-- =====================================================
          SERVICE INFORMATION
@@ -712,7 +780,16 @@
                 </h4>
 
 
-                @foreach($service->fields->where('active', true) as $field)
+               @foreach(
+    $service->fields
+        ->where('active', true)
+        ->reject(fn($field) => in_array($field->field_name, [
+            'event_schedule',
+            'date_of_event',
+            'schedule_of_event',
+        ]))
+    as $field
+)
 
                     @php
 

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+
 class DocumentRequest extends Model
 {
     protected $table = 'requests';
@@ -38,6 +39,10 @@ class DocumentRequest extends Model
         'subject',
 
         'description',
+
+        'event_date',
+
+        'event_schedule',
 
         'status',
 
@@ -75,6 +80,10 @@ class DocumentRequest extends Model
 
         'due_date' => 'date',
 
+        'event_date' => 'date',
+
+        'event_schedule' => 'array',
+
         'completed_at' => 'datetime',
 
         'archived_at' => 'datetime',
@@ -100,6 +109,18 @@ class DocumentRequest extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
+    
+public function assignedPersonnel(): BelongsToMany
+{
+    return $this->belongsToMany(
+        Personnel::class,
+        'personnel_request',
+        'request_id',
+        'personnel_id'
+    )->withTimestamps();
+}
+
+
     public function organization(): BelongsTo
     {
         return $this->belongsTo(Organization::class);
@@ -110,14 +131,17 @@ class DocumentRequest extends Model
         return $this->belongsTo(Contact::class);
     }
 
-    public function services(): BelongsToMany
+   public function services(): BelongsToMany
 {
     return $this->belongsToMany(
         Service::class,
         'request_service',
         'request_id',
         'service_id'
-    );
+    )->withPivot([
+        'status',
+        'completed_at',
+    ])->withTimestamps();
 }
 
     public function answers(): HasMany

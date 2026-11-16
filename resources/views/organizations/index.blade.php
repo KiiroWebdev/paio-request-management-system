@@ -115,52 +115,37 @@
                 </label>
 
                 <select
-                    name="type"
-                    class="form-select">
+                   @php
+    $types = [
+        'Department',
+        'Office',
+        'Division',
+        'Section',
+        'Barangay',
+        'National Agency',
+        'GOCC',
+        'School',
+        'University',
+        'Hospital',
+        'Private Company',
+        'NGO',
+        'Peoples Organization',
+        'Media',
+        'Individual',
+        'Other',
+    ];
+@endphp
 
-                    <option value="">All Types</option>
+<select name="type" class="form-select">
+    <option value="">All Types</option>
 
-                    <option value="Department" @selected(request('type')=='Department')>Department</option>
-
-                    <option value="Office" @selected(request('type')=='Office')>Office</option>
-
-                    <option value="Division" @selected(request('type')=='Division')>Division</option>
-
-                    <option value="Section" @selected(request('type')=='Section')>Section</option>
-
-                    <option value="Committee" @selected(request('type')=='Committee')>Committee</option>
-
-                    <option value="Barangay" @selected(request('type')=='Barangay')>Barangay</option>
-
-                    <option value="National Agency" @selected(request('type')=='National Agency')>National Agency</option>
-
-                    <option value="GOCC" @selected(request('type')=='GOCC')>GOCC</option>
-
-                    <option value="School" @selected(request('type')=='School')>School</option>
-
-                    <option value="University" @selected(request('type')=='University')>University</option>
-
-                    <option value="Hospital" @selected(request('type')=='Hospital')>Hospital</option>
-
-                    <option value="Private Company" @selected(request('type')=='Private Company')>Private Company</option>
-
-                    <option value="NGO" @selected(request('type')=='NGO')>NGO</option>
-
-                    <option value="People's Organization"
-                        @selected(request('type')=="People's Organization")>
-
-                        People's Organization
-
-                    </option>
-
-                    <option value="Media" @selected(request('type')=='Media')>Media</option>
-
-                    <option value="Individual" @selected(request('type')=='Individual')>Individual</option>
-
-                    <option value="Other" @selected(request('type')=='Other')>Other</option>
-
-                </select>
-
+    @foreach($types as $type)
+        <option value="{{ $type }}"
+            @selected(request('type') == $type)>
+            {{ $type }}
+        </option>
+    @endforeach
+</select>
             </div>
 
             <div class="col-lg-2">

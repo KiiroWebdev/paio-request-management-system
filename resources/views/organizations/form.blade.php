@@ -53,38 +53,23 @@
         @php
 
         $types = [
-
-            'Department',
-            'Office',
-            'Division',
-            'Section',
-            'Committee',
-
-            'Barangay',
-
-            'National Agency',
-
-            'GOCC',
-
-            'School',
-
-            'University',
-
-            'Hospital',
-
-            'Private Company',
-
-            'NGO',
-
-            "People's Organization",
-
-            'Media',
-
-            'Individual',
-
-            'Other',
-
-        ];
+    'Department',
+    'Office',
+    'Division',
+    'Section',
+    'Barangay',
+    'National Agency',
+    'GOCC',
+    'School',
+    'University',
+    'Hospital',
+    'Private Company',
+    'NGO',
+    'Peoples Organization',
+    'Media',
+    'Individual',
+    'Other',
+];
 
         @endphp
 

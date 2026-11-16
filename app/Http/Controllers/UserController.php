@@ -36,6 +36,8 @@ public function store(Request $request)
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
         'password' => ['required', 'confirmed', \Illuminate\Validation\Rules\Password::defaults()],
         'role' => ['required', 'in:Admin,Staff'],
+        'can_access_document_archives' => ['sometimes', 'boolean'],
+        
     ]);
 
     User::create([
@@ -43,6 +45,9 @@ public function store(Request $request)
         'email' => $validated['email'],
         'password' => $validated['password'],
         'role' => $validated['role'],
+        'can_access_document_archives' => $validated['role'] === 'Staff'
+        ? $request->boolean('can_access_document_archives')
+        : false,
     ]);
 
     return redirect()
@@ -89,7 +94,9 @@ public function update(Request $request, User $user)
         'role' => [
             'required',
             'in:Admin,Staff',
+            
         ],
+        'can_access_document_archives' => ['sometimes', 'boolean'],
 
         'password' => [
             'nullable',
@@ -110,6 +117,9 @@ public function update(Request $request, User $user)
     $user->name = $validated['name'];
     $user->email = $validated['email'];
     $user->role = $validated['role'];
+    $user->can_access_document_archives = $validated['role'] === 'Staff'
+    ? $request->boolean('can_access_document_archives')
+    : false;
 
     // Only change the password if one was provided.
     if (!empty($validated['password'])) {

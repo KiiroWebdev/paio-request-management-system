@@ -227,6 +227,74 @@
 
             </div>
 
+            
+{{-- ========================================= --}}
+{{-- Event Information --}}
+{{-- ========================================= --}}
+
+@if($documentRequest->event_date || !empty($documentRequest->event_schedule))
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header">
+            <strong>
+                <i class="bi bi-calendar-event me-1"></i>
+                Event Information
+            </strong>
+        </div>
+
+        <div class="card-body">
+
+            @if($documentRequest->event_date)
+                <div class="mb-3">
+                    <label class="text-muted">
+                        Event Date
+                    </label>
+
+                    <div class="fw-semibold">
+                        {{ $documentRequest->event_date->format('F d, Y') }}
+                    </div>
+                </div>
+            @endif
+
+            @if(!empty($documentRequest->event_schedule))
+                <div>
+                    <label class="text-muted mb-2">
+                        Event Schedule
+                    </label>
+
+                    <div class="d-flex flex-column gap-2">
+
+                        @foreach($documentRequest->event_schedule as $schedule)
+
+                            <div class="border rounded p-3 bg-light">
+
+                                <div class="fw-semibold">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    {{ \Carbon\Carbon::parse($schedule['date'])->format('F d, Y') }}
+                                </div>
+
+                                <div class="small text-muted mt-1">
+                                    <i class="bi bi-clock me-1"></i>
+                                    {{ \Carbon\Carbon::parse($schedule['start_time'])->format('h:i A') }}
+                                    –
+                                    {{ \Carbon\Carbon::parse($schedule['end_time'])->format('h:i A') }}
+                                </div>
+
+                            </div>
+
+                        @endforeach
+
+                    </div>
+                </div>
+            @endif
+
+        </div>
+    </div>
+
+@endif
+
+
             {{-- ========================================= --}}
             {{-- Service Information --}}
             {{-- ========================================= --}}
@@ -460,6 +528,105 @@
 
 @endforelse
 
+@php
+    $totalServices = $documentRequest->services->count();
+
+    $completedServices = $documentRequest->services->filter(
+        fn($service) => ($service->pivot->status ?? 'Pending') === 'Done'
+    )->count();
+
+    $progressPercentage = $totalServices > 0
+        ? round(($completedServices / $totalServices) * 100)
+        : 0;
+@endphp
+
+<hr class="my-4">
+
+<div class="mb-3">
+    <h6 class="fw-bold">
+        <i class="bi bi-list-check me-2"></i>
+        Requested Services & Progress
+    </h6>
+    <p class="text-muted small mb-3">
+        Monitor and update the progress of each requested service.
+    </p>
+    @if($totalServices > 0)
+    <div class="mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+            <small class="fw-bold text-muted">
+                Service Completion
+            </small>
+
+            <small class="fw-bold">
+                {{ $completedServices }} of {{ $totalServices }}
+                ({{ $progressPercentage }}%)
+            </small>
+        </div>
+
+        <div class="progress" style="height: 8px;">
+            <div
+                class="progress-bar bg-success"
+                role="progressbar"
+                style="width: {{ $progressPercentage }}%;"
+                aria-valuenow="{{ $progressPercentage }}"
+                aria-valuemin="0"
+                aria-valuemax="100"
+            ></div>
+        </div>
+    </div>
+@endif
+</div>
+
+@forelse($documentRequest->services as $service)
+    @php
+        $serviceStatus = $service->pivot->status ?? 'Pending';
+
+        $serviceStatusClass = match($serviceStatus) {
+            'Pending' => 'bg-secondary',
+            'Ongoing' => 'bg-primary',
+            'Done' => 'bg-success',
+            default => 'bg-secondary',
+        };
+    @endphp
+
+    <div class="border rounded p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+            <strong>{{ $service->name }}</strong>
+
+            <span class="badge {{ $serviceStatusClass }}">
+                {{ $serviceStatus }}
+            </span>
+        </div>
+
+        @if(
+            $documentRequest->status === 'Ongoing'
+            && $documentRequest->approval_status === 'Approved'
+            && (auth()->user()?->isAdmin() || auth()->user()?->isStaff())
+        )
+            <select
+                class="form-select form-select-sm service-progress-select"
+                data-service-id="{{ $service->id }}"
+                data-current-status="{{ $serviceStatus }}"
+            >
+                <option value="Pending" @selected($serviceStatus === 'Pending')>
+                    Pending
+                </option>
+                <option value="Ongoing" @selected($serviceStatus === 'Ongoing')>
+                    Ongoing
+                </option>
+                <option value="Done" @selected($serviceStatus === 'Done')>
+                    Done
+                </option>
+            </select>
+        @endif
+    </div>
+@empty
+    <div class="text-muted small">
+        No requested services found.
+    </div>
+@endforelse
+
+
                 </div>
 
             </div>
@@ -684,7 +851,7 @@
             <div>
 
                 <label class="small text-muted d-block">
-                    {{ $documentRequest->approval_status === 'Approved' ? 'Review Note' : 'Reason' }}
+                    {{ $documentRequest->approval_status === 'Approved' ? 'Approval Note' : 'Reason' }}
                 </label>
 
                 <div class="small">
@@ -2579,4 +2746,53 @@
 </div>
 
     </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.service-progress-select').forEach(function (select) {
+        select.addEventListener('change', async function () {
+            const serviceId = select.dataset.serviceId;
+            const previousStatus = select.dataset.currentStatus;
+            const newStatus = select.value;
+
+            select.disabled = true;
+
+            try {
+                const response = await fetch(
+                    `/requests/{{ $documentRequest->id }}/services/${encodeURIComponent(serviceId)}/progress`,
+                    {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            status: newStatus
+                        })
+                    }
+                );
+
+                const result = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    throw new Error(
+                        result.message || 'Unable to update service progress.'
+                    );
+                }
+
+                window.location.reload();
+
+            } catch (error) {
+                alert(error.message || 'An error occurred.');
+
+                select.value = previousStatus;
+                select.disabled = false;
+            }
+        });
+    });
+});
+</script>
+
 @endsection
