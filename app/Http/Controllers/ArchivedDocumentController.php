@@ -1,34 +1,19 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use App\Models\ArchivedDocument;
 use App\Models\ArchivedDocumentActivity;
+use App\Models\DocumentCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ArchivedDocumentController extends Controller
 {
-    private const DOCUMENT_TYPES = [
-        'Memoranda',
-        'Office Orders',
-        'Letters',
-        'Executive Orders',
-        'Resolutions',
-        'Ordinances',
-        'Reports',
-        'Minutes of Meetings',
-        'Invitations',
-        'Communications',
-        'Certificates',
-        'Agreements',
-        'Other Documents',
-    ];
+   
 
     /**
      * Display archived documents with search and filters.
@@ -55,7 +40,9 @@ class ArchivedDocumentController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $documentTypes = self::DOCUMENT_TYPES;
+        $documentTypes = DocumentCategory::where('is_active', true)
+    ->orderBy('name')
+    ->pluck('name');
 
         return view('document-archives.index', compact(
             'documents',
@@ -68,7 +55,9 @@ class ArchivedDocumentController extends Controller
      */
     public function create(): View
     {
-        $documentTypes = self::DOCUMENT_TYPES;
+        $documentTypes = DocumentCategory::where('is_active', true)
+    ->orderBy('name')
+    ->pluck('name');
 
         return view('document-archives.create', compact('documentTypes'));
     }
@@ -79,11 +68,20 @@ class ArchivedDocumentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'document_type' => [
-                'required',
-                'string',
-                Rule::in(self::DOCUMENT_TYPES),
-            ],
+           'document_type' => [
+    'required',
+    'string',
+    'exists:document_categories,name',
+    function ($attribute, $value, $fail) {
+        $exists = DocumentCategory::where('name', $value)
+            ->where('is_active', true)
+            ->exists();
+
+        if (! $exists) {
+            $fail('Please select a valid active document category.');
+        }
+    },
+],
             'document_number' => ['nullable', 'string', 'max:255'],
             'subject' => ['required', 'string', 'max:255'],
             'document_date' => ['nullable', 'date'],
@@ -173,7 +171,10 @@ class ArchivedDocumentController extends Controller
      */
     public function edit(ArchivedDocument $archivedDocument): View
     {
-        $documentTypes = self::DOCUMENT_TYPES;
+       $documentTypes = DocumentCategory::where('is_active', true)
+    ->orWhere('name', $archivedDocument->document_type)
+    ->orderBy('name')
+    ->pluck('name');
 
         return view('document-archives.edit', compact(
             'archivedDocument',
@@ -190,10 +191,21 @@ class ArchivedDocumentController extends Controller
     ) {
         $validated = $request->validate([
             'document_type' => [
-                'required',
-                'string',
-                Rule::in(self::DOCUMENT_TYPES),
-            ],
+    'required',
+    'string',
+    function ($attribute, $value, $fail) use ($archivedDocument) {
+        $exists = DocumentCategory::where('name', $value)
+            ->where(function ($query) use ($archivedDocument) {
+                $query->where('is_active', true)
+                    ->orWhere('name', $archivedDocument->document_type);
+            })
+            ->exists();
+
+        if (! $exists) {
+            $fail('Please select a valid document category.');
+        }
+    },
+],
             'document_number' => ['nullable', 'string', 'max:255'],
             'subject' => ['required', 'string', 'max:255'],
             'document_date' => ['nullable', 'date'],

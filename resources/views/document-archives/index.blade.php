@@ -21,14 +21,22 @@
         </div>
 
        
-<div class="d-flex gap-2">
+<div class="d-flex flex-wrap gap-2">
 
     @if(auth()->user()->isAdmin())
+
+        <a href="{{ route('document-archives.categories.index') }}"
+           class="btn btn-outline-primary">
+            <i class="bi bi-tags me-1"></i>
+            Manage Categories
+        </a>
+
         <a href="{{ route('document-archives.trashed') }}"
            class="btn btn-outline-danger">
             <i class="bi bi-trash3 me-1"></i>
             Recycle Bin
         </a>
+
     @endif
 
     <a href="{{ route('document-archives.create') }}"

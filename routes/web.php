@@ -21,6 +21,7 @@ use App\Http\Controllers\DashboardReportController;
 use App\Http\Controllers\DashboardPreferenceController;
 use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\ArchivedDocumentController;
+use App\Http\Controllers\DocumentCategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -582,6 +583,28 @@ Route::delete(
         ->prefix('document-archives')
         ->name('document-archives.')
         ->group(function () {
+
+        // Document Category Management — Admin only
+Route::middleware('admin')
+    ->prefix('categories')
+    ->name('categories.')
+    ->group(function () {
+
+        Route::get('/', [DocumentCategoryController::class, 'index'])
+            ->name('index');
+
+        Route::post('/', [DocumentCategoryController::class, 'store'])
+            ->name('store');
+
+        Route::put('/{category}', [DocumentCategoryController::class, 'update'])
+            ->name('update');
+
+        Route::patch('/{category}/toggle-status', [
+            DocumentCategoryController::class,
+            'toggleStatus',
+        ])->name('toggle-status');
+
+    });
 
             // Archive listing
             Route::get('/', [ArchivedDocumentController::class, 'index'])

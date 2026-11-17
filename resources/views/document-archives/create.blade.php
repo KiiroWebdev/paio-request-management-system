@@ -39,11 +39,11 @@
                             <option value="">Select document category</option>
 
                             @foreach($documentTypes as $type)
-                                <option value="{{ $type }}"
-                                    @selected(old('document_type') === $type)>
-                                    {{ $type }}
-                                </option>
-                            @endforeach
+    <option value="{{ $type }}"
+        @selected(old('document_type') === $type)>
+        {{ $type }}
+    </option>
+@endforeach
                         </select>
 
                         @error('document_type')
