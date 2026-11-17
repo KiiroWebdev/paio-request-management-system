@@ -11,16 +11,21 @@ use Illuminate\View\View;
 
 class DocumentCategoryController extends Controller
 {
-    /**
-     * Display all document categories.
-     */
-    public function index(): View
-    {
-        $categories = DocumentCategory::orderBy('name')
-            ->paginate(15);
+   /**
+ * Display all document categories with document usage counts.
+ */
+public function index(): View
+{
+    $categories = DocumentCategory::withCount([
+        'archivedDocuments as documents_count' => function ($query) {
+            $query->whereNull('deleted_at');
+        },
+    ])
+        ->orderBy('name')
+        ->paginate(15);
 
-        return view('document-categories.index', compact('categories'));
-    }
+    return view('document-categories.index', compact('categories'));
+}
 
     /**
      * Store a new document category.

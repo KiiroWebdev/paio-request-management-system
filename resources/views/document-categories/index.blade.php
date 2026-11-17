@@ -78,6 +78,7 @@
                 <thead class="table-light">
                     <tr>
                         <th class="ps-4">Category Name</th>
+                        <th class="text-center">Documents</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th class="text-end pe-4">Actions</th>
@@ -88,8 +89,14 @@
                     @forelse($categories as $category)
                         <tr>
                             <td class="ps-4 fw-semibold">
-                                {{ $category->name }}
-                            </td>
+    {{ $category->name }}
+</td>
+
+<td class="text-center">
+    <span class="badge bg-primary rounded-pill">
+        {{ number_format($category->documents_count) }}
+    </span>
+</td>
 
                             <td>
                                 @if($category->is_active)
@@ -125,7 +132,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center text-muted py-4">
+                            <td colspan="5" class="text-center text-muted py-4">
                                 No document categories found.
                             </td>
                         </tr>
